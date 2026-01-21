@@ -7,14 +7,12 @@
   <style>
     :root {
       --bg: #0b0f1a;
-      --panel: #111a2e;
       --text: #eaf0ff;
       --muted: #a9b4d1;
       --border: rgba(255,255,255,0.10);
       --shadow: rgba(0,0,0,0.35);
       --danger: rgba(248,113,113,0.25);
     }
-
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -48,11 +46,7 @@
       justify-content: space-between;
     }
 
-    header h1 {
-      margin: 0;
-      font-size: 18px;
-      letter-spacing: 0.4px;
-    }
+    header h1 { margin: 0; font-size: 18px; letter-spacing: 0.4px; }
     .sub { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
 
     .leftHead { display:flex; align-items:center; gap:12px; }
@@ -76,7 +70,7 @@
       grid-template-columns: 1fr 150px 140px 110px;
       gap: 10px;
       align-items: center;
-      width: min(660px, 100%);
+      width: min(720px, 100%);
     }
     .form input, .form select, .form button {
       height: 40px;
@@ -158,15 +152,13 @@
     }
     .btn:hover { filter: brightness(1.05); }
     .btn:disabled { cursor:not-allowed; opacity:0.55; }
-    .btn.danger {
-      border-color: rgba(248,113,113,0.35);
-      background: var(--danger);
+    .btn.danger { border-color: rgba(248,113,113,0.35); background: var(--danger); }
+    .btn.primary {
+      border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+      background: color-mix(in srgb, var(--accent) 20%, rgba(255,255,255,0.06));
     }
 
-    .completedList {
-      display: grid;
-      gap: 8px;
-    }
+    .completedList { display: grid; gap: 8px; }
 
     .completedItem {
       border: 1px solid var(--border);
@@ -204,6 +196,7 @@
       background: rgba(17,26,46,0.55);
       overflow: hidden;
       position: relative;
+      user-select: none;
     }
 
     .item::before{
@@ -229,6 +222,28 @@
       gap: 10px;
       align-items: baseline;
       flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .drag {
+      width: 26px;
+      height: 26px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      display: grid;
+      place-items: center;
+      cursor: grab;
+      flex: 0 0 auto;
+    }
+    .drag:active { cursor: grabbing; }
+    .dragDots {
+      width: 12px; height: 12px;
+      background:
+        radial-gradient(circle, rgba(234,240,255,0.8) 2px, transparent 3px) 0 0/6px 6px,
+        radial-gradient(circle, rgba(234,240,255,0.8) 2px, transparent 3px) 3px 3px/6px 6px;
+      opacity: 0.55;
+      border-radius: 4px;
     }
 
     .dot {
@@ -240,15 +255,10 @@
       transform: translateY(1px);
     }
 
-    .name { font-weight: 650; letter-spacing: 0.2px; }
+    .name { font-weight: 650; letter-spacing: 0.2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .meta { color: var(--muted); font-size: 13px; }
 
     .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-
-    .btn.primary {
-      border-color: color-mix(in srgb, var(--accent) 55%, transparent);
-      background: color-mix(in srgb, var(--accent) 20%, rgba(255,255,255,0.06));
-    }
 
     .barWrap { padding: 0 14px 14px; }
     .bar {
@@ -284,6 +294,39 @@
 
     .hide { display: none !important; }
 
+    /* Drag states */
+    .dragging {
+      opacity: 0.65;
+      transform: scale(0.995);
+    }
+    .dropHint {
+      outline: 2px dashed rgba(234,240,255,0.22);
+      outline-offset: -6px;
+    }
+
+    /* Color edit button */
+    .colorBtn {
+      width: 34px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+    }
+    .swatch {
+      width: 14px; height: 14px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.15) inset;
+    }
+    .colorPicker {
+      width: 36px;
+      height: 34px;
+      padding: 0;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      cursor: pointer;
+    }
+
     @media (max-width: 860px) {
       .layout { grid-template-columns: 1fr; }
       .drawer { order: 2; }
@@ -302,7 +345,7 @@
         <button class="menuBtn" id="menuBtn" title="Toggle menu" aria-label="Toggle menu">☰</button>
         <div>
           <h1>Countdown Todo</h1>
-          <p class="sub">Finish naturally or mark complete early. Completion logs time actually used.</p>
+          <p class="sub">Drag tasks to reorder. Change color anytime. Completion logs time used.</p>
         </div>
       </div>
 
@@ -355,7 +398,7 @@
     // -------------------------------
     // Persistence keys
     // -------------------------------
-    const LS_ACTIVE = "todo_active_v2";
+    const LS_ACTIVE = "todo_active_v3";     // bumped version for new ordering+colors
     const LS_COMPLETED = "todo_completed_v2";
     const LS_UI = "todo_ui_v1";
 
@@ -380,6 +423,9 @@
     // Tracks whether the active list is hidden (UI preference)
     const uiState = loadJSON(LS_UI, { hideActiveList: false, drawerHidden: false });
 
+    // Drag state
+    let draggingId = null;
+
     function saveJSON(key, obj) {
       localStorage.setItem(key, JSON.stringify(obj));
     }
@@ -400,41 +446,60 @@
     }
 
     function fmtMinutes(ms) {
-      const mins = ms / 60000;
-      // 2 decimals, but don't be obnoxious
-      return `${mins.toFixed(2)} min`;
+      return `${(ms / 60000).toFixed(2)} min`;
     }
 
     function nowISO() {
       return new Date().toISOString();
     }
 
+    function cryptoRandomId() {
+      const a = new Uint32Array(2);
+      (crypto || window.crypto).getRandomValues(a);
+      return a[0].toString(16) + a[1].toString(16);
+    }
+
+    function escapeHTML(s) {
+      return String(s)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
     function renderEmpty() {
-      emptyEl.style.display = tasks.size === 0 ? "block" : "none";
-      activeCountEl.textContent = String(tasks.size);
+      emptyEl.style.display = listOrder().length === 0 ? "block" : "none";
+      activeCountEl.textContent = String(listOrder().length);
+    }
+
+    // Returns active task ids in current DOM order (source of truth for ordering)
+    function listOrder() {
+      return Array.from(listEl.querySelectorAll(".item")).map(el => el.dataset.id);
     }
 
     function persistActive() {
-      // Only persist fields needed to restore
-      const arr = Array.from(tasks.values()).map(t => ({
-        id: t.id,
-        name: t.name,
-        minutes: t.minutes,
-        color: t.color,
-        totalMs: t.totalMs,
-        remainingMs: t.remainingMs,
-        elapsedMs: t.elapsedMs || 0,
-        running: false // restore paused
-      }));
+      // Persist in visual order
+      const order = listOrder();
+      const arr = order.map(id => {
+        const t = tasks.get(id);
+        if (!t) return null;
+        return {
+          id: t.id,
+          name: t.name,
+          minutes: t.minutes,
+          color: t.color,
+          totalMs: t.totalMs,
+          remainingMs: t.remainingMs,
+          elapsedMs: t.elapsedMs || 0
+        };
+      }).filter(Boolean);
+
       saveJSON(LS_ACTIVE, { nextId, tasks: arr });
     }
 
-    function getCompleted() {
-      return loadJSON(LS_COMPLETED, []);
-    }
-    function setCompleted(arr) {
-      saveJSON(LS_COMPLETED, arr);
-    }
+    function getCompleted() { return loadJSON(LS_COMPLETED, []); }
+    function setCompleted(arr) { saveJSON(LS_COMPLETED, arr); }
 
     function renderCompleted() {
       const completed = getCompleted();
@@ -442,7 +507,6 @@
       completedEmptyEl.style.display = completed.length === 0 ? "block" : "none";
       completedListEl.innerHTML = "";
 
-      // Newest first
       completed.slice().reverse().forEach((c) => {
         const el = document.createElement("div");
         el.className = "completedItem";
@@ -477,7 +541,6 @@
         completedListEl.appendChild(el);
       });
 
-      // Wire restore/delete
       completedListEl.querySelectorAll("[data-restore]").forEach(btn => {
         btn.addEventListener("click", () => restoreCompleted(btn.getAttribute("data-restore")));
       });
@@ -488,13 +551,6 @@
 
     function addCompletedFromTask(task, { completedEarly }) {
       const completed = getCompleted();
-
-      // How much time was actually needed?
-      // - We track elapsedMs during runs
-      // - If they complete without starting, elapsedMs is 0
-      const plannedMs = task.totalMs;
-      const elapsedMs = Math.max(0, task.elapsedMs || 0);
-
       completed.push({
         id: "c_" + cryptoRandomId(),
         name: task.name,
@@ -502,10 +558,9 @@
         color: task.color,
         completedAt: nowISO(),
         completedEarly: !!completedEarly,
-        plannedMs,
-        timeUsedMs: elapsedMs
+        plannedMs: task.totalMs,
+        timeUsedMs: Math.max(0, task.elapsedMs || 0)
       });
-
       setCompleted(completed);
       renderCompleted();
     }
@@ -516,7 +571,6 @@
       if (idx === -1) return;
 
       const c = completed[idx];
-      // Restore as a brand new active task (full duration)
       createTask({ name: c.name, minutes: c.minutes, color: c.color }, { persist: true });
 
       completed.splice(idx, 1);
@@ -525,29 +579,13 @@
     }
 
     function deleteCompleted(completedId) {
-      const completed = getCompleted().filter(x => x.id !== completedId);
-      setCompleted(completed);
+      setCompleted(getCompleted().filter(x => x.id !== completedId));
       renderCompleted();
     }
 
     function clearCompleted() {
       setCompleted([]);
       renderCompleted();
-    }
-
-    function cryptoRandomId() {
-      const a = new Uint32Array(2);
-      (crypto || window.crypto).getRandomValues(a);
-      return a[0].toString(16) + a[1].toString(16);
-    }
-
-    function escapeHTML(s) {
-      return String(s)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
     }
 
     function createTask({ name, minutes, color }, { persist = true } = {}) {
@@ -561,17 +599,15 @@
         color,
         totalMs,
         remainingMs: totalMs,
-
-        // NEW: log time used
         elapsedMs: 0,
         lastTickAt: null,
-
         running: false,
         raf: null,
         endsAt: null
       };
 
       tasks.set(id, task);
+      // Add at top (newest first) to match prior behavior
       listEl.prepend(buildTaskEl(task));
       renderEmpty();
       if (persist) persistActive();
@@ -582,10 +618,14 @@
       item.className = "item";
       item.dataset.id = task.id;
       item.style.setProperty("--accent", task.color);
+      item.draggable = true;
 
       item.innerHTML = `
         <div class="row">
           <div class="title">
+            <div class="drag" title="Drag to reorder" aria-label="Drag to reorder">
+              <div class="dragDots" aria-hidden="true"></div>
+            </div>
             <span class="dot" aria-hidden="true"></span>
             <span class="name"></span>
             <span class="meta"></span>
@@ -594,6 +634,10 @@
             <button class="btn primary start">Start</button>
             <button class="btn pause" disabled>Pause</button>
             <button class="btn primary done" title="Mark complete early">Done</button>
+
+            <!-- Change color: quick picker -->
+            <input class="colorPicker" type="color" title="Change color" aria-label="Change color" />
+
             <button class="btn delete">Delete</button>
           </div>
         </div>
@@ -619,13 +663,104 @@
       const pauseBtn = item.querySelector(".pause");
       const doneBtn = item.querySelector(".done");
       const delBtn = item.querySelector(".delete");
+      const colorPicker = item.querySelector(".colorPicker");
+
+      colorPicker.value = normalizeColor(task.color);
 
       startBtn.addEventListener("click", () => startTask(task.id));
       pauseBtn.addEventListener("click", () => pauseTask(task.id));
       doneBtn.addEventListener("click", () => completeTask(task.id, { completedEarly: true }));
       delBtn.addEventListener("click", () => removeTask(task.id, { persist: true }));
 
+      colorPicker.addEventListener("input", (e) => {
+        setTaskColor(task.id, e.target.value);
+      });
+
+      // Drag & drop reorder
+      item.addEventListener("dragstart", (e) => {
+        // Prevent dragging when interacting with buttons/inputs (common annoyance)
+        const target = e.target;
+        if (target.closest("button") || target.closest("input") || target.closest("select")) {
+          e.preventDefault();
+          return;
+        }
+        draggingId = task.id;
+        item.classList.add("dragging");
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", task.id);
+      });
+
+      item.addEventListener("dragend", () => {
+        item.classList.remove("dragging");
+        clearDropHints();
+        draggingId = null;
+        persistActive();
+      });
+
+      item.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        if (draggingId && draggingId !== task.id) item.classList.add("dropHint");
+      });
+
+      item.addEventListener("dragleave", () => {
+        item.classList.remove("dropHint");
+      });
+
+      item.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const fromId = e.dataTransfer.getData("text/plain") || draggingId;
+        const toId = task.id;
+        if (!fromId || fromId === toId) return;
+
+        const fromEl = listEl.querySelector(`.item[data-id="${fromId}"]`);
+        const toEl = listEl.querySelector(`.item[data-id="${toId}"]`);
+        if (!fromEl || !toEl) return;
+
+        // Insert before/after based on cursor position
+        const rect = toEl.getBoundingClientRect();
+        const before = e.clientY < rect.top + rect.height / 2;
+
+        if (before) {
+          listEl.insertBefore(fromEl, toEl);
+        } else {
+          listEl.insertBefore(fromEl, toEl.nextSibling);
+        }
+
+        clearDropHints();
+        renderEmpty();
+        persistActive();
+      });
+
+      // Make sure only the handle feels like "draggy" on mobile-ish use:
+      // (Still HTML5 drag; works best on desktop. iOS Safari support varies.)
+      // We'll also support Up/Down buttons via keyboard? Not requested—skip.
+
       return item;
+    }
+
+    function clearDropHints() {
+      listEl.querySelectorAll(".dropHint").forEach(el => el.classList.remove("dropHint"));
+    }
+
+    function normalizeColor(c) {
+      // If already #rrggbb, keep it. Otherwise default.
+      if (typeof c === "string" && /^#([0-9a-f]{6})$/i.test(c)) return c;
+      // Convert some common named values? keep simple.
+      return "#60a5fa";
+    }
+
+    function setTaskColor(taskId, newColor) {
+      const task = tasks.get(taskId);
+      if (!task) return;
+      task.color = normalizeColor(newColor);
+
+      const item = listEl.querySelector(`.item[data-id="${taskId}"]`);
+      if (item) {
+        item.style.setProperty("--accent", task.color);
+        // keep dot + fill updated automatically via CSS var
+      }
+      persistActive();
     }
 
     function updateTaskUI(task) {
@@ -660,7 +795,6 @@
 
       const now = performance.now();
 
-      // Update elapsed time based on last tick
       if (task.lastTickAt != null) {
         const dt = Math.max(0, now - task.lastTickAt);
         task.elapsedMs += dt;
@@ -684,7 +818,6 @@
 
       task.running = true;
       const now = performance.now();
-
       task.lastTickAt = now;
       task.endsAt = now + task.remainingMs;
 
@@ -701,7 +834,6 @@
       if (task.raf) cancelAnimationFrame(task.raf);
       task.raf = null;
 
-      // Freeze elapsed tracking
       task.lastTickAt = null;
 
       updateTaskUI(task);
@@ -712,27 +844,21 @@
       const task = tasks.get(taskId);
       if (!task) return;
 
-      // If they hit Done while running, capture the last slice of elapsed time
       if (task.running && task.lastTickAt != null) {
         const now = performance.now();
-        const dt = Math.max(0, now - task.lastTickAt);
-        task.elapsedMs += dt;
+        task.elapsedMs += Math.max(0, now - task.lastTickAt);
         task.lastTickAt = null;
       }
 
       task.running = false;
       if (task.raf) cancelAnimationFrame(task.raf);
 
-      // Save completion record with time used
       addCompletedFromTask(task, { completedEarly });
 
       const item = listEl.querySelector(`.item[data-id="${task.id}"]`);
       if (item) {
         item.animate(
-          [
-            { opacity: 1, transform: "scale(1)" },
-            { opacity: 0, transform: "scale(0.98)" }
-          ],
+          [{ opacity: 1, transform: "scale(1)" }, { opacity: 0, transform: "scale(0.98)" }],
           { duration: 220, easing: "ease-out" }
         ).onfinish = () => removeTask(taskId, { persist: true });
       } else {
@@ -809,18 +935,17 @@
 
       nextId = Math.max(1, Number(saved.nextId) || 1);
 
+      // Restore in saved order (top -> bottom)
       saved.tasks.forEach((t) => {
         const task = {
           id: String(t.id),
           name: t.name,
           minutes: Number(t.minutes),
-          color: t.color,
+          color: normalizeColor(t.color),
           totalMs: Number(t.totalMs),
           remainingMs: Number(t.remainingMs),
-
           elapsedMs: Number(t.elapsedMs || 0),
           lastTickAt: null,
-
           running: false,
           raf: null,
           endsAt: null
