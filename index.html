@@ -93,7 +93,7 @@
 
     .layout {
       display: grid;
-      grid-template-columns: 280px 1fr;
+      grid-template-columns: 300px 1fr;
       gap: 12px;
       align-items: start;
     }
@@ -105,6 +105,12 @@
       padding: 12px;
       overflow: hidden;
       max-height: 70vh;
+    }
+
+    .drawerScroll {
+      overflow: auto;
+      max-height: calc(70vh - 10px);
+      padding-right: 2px;
     }
 
     .drawerHeader {
@@ -136,7 +142,7 @@
       display:flex;
       gap:8px;
       flex-wrap: wrap;
-      margin: 8px 0 10px;
+      margin: 8px 0 12px;
     }
 
     .btn {
@@ -157,6 +163,76 @@
       border-color: color-mix(in srgb, var(--accent) 55%, transparent);
       background: color-mix(in srgb, var(--accent) 20%, rgba(255,255,255,0.06));
     }
+
+    .sectionCard {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      padding: 10px;
+      margin-top: 10px;
+    }
+    .sectionTop {
+      display:flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .sectionTop h3 {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .summaryGrid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .statLine {
+      display:flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .statLabel { color: var(--muted); }
+
+    .pieWrap {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+    canvas { display:block; }
+
+    .legend {
+      display: grid;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .legendRow { display:flex; gap: 8px; align-items: center; }
+    .legendDot {
+      width: 10px; height: 10px; border-radius: 999px;
+      background: var(--c);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.15);
+      flex: 0 0 auto;
+    }
+
+    .summaryList {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      display: grid;
+      gap: 6px;
+    }
+    .summaryList strong { color: var(--text); font-weight: 650; }
 
     .completedList { display: grid; gap: 8px; }
 
@@ -292,31 +368,6 @@
       gap: 8px;
     }
 
-    .hide { display: none !important; }
-
-    /* Drag states */
-    .dragging {
-      opacity: 0.65;
-      transform: scale(0.995);
-    }
-    .dropHint {
-      outline: 2px dashed rgba(234,240,255,0.22);
-      outline-offset: -6px;
-    }
-
-    /* Color edit button */
-    .colorBtn {
-      width: 34px;
-      padding: 0;
-      display: grid;
-      place-items: center;
-    }
-    .swatch {
-      width: 14px; height: 14px;
-      border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 0 3px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.15) inset;
-    }
     .colorPicker {
       width: 36px;
       height: 34px;
@@ -326,6 +377,11 @@
       background: rgba(255,255,255,0.06);
       cursor: pointer;
     }
+
+    .hide { display: none !important; }
+
+    .dragging { opacity: 0.65; transform: scale(0.995); }
+    .dropHint { outline: 2px dashed rgba(234,240,255,0.22); outline-offset: -6px; }
 
     @media (max-width: 860px) {
       .layout { grid-template-columns: 1fr; }
@@ -345,7 +401,7 @@
         <button class="menuBtn" id="menuBtn" title="Toggle menu" aria-label="Toggle menu">☰</button>
         <div>
           <h1>Countdown Todo</h1>
-          <p class="sub">Drag tasks to reorder. Change color anytime. Completion logs time used.</p>
+          <p class="sub">Summary report: totals + completed list + time spent + pie chart by color.</p>
         </div>
       </div>
 
@@ -367,23 +423,56 @@
     <main>
       <div class="layout">
         <aside class="drawer" id="drawer">
-          <div class="drawerHeader">
-            <div class="drawerTitle">Menu</div>
-            <div class="pill"><span id="activeCount">0</span> active</div>
-          </div>
+          <div class="drawerScroll">
+            <div class="drawerHeader">
+              <div class="drawerTitle">Menu</div>
+              <div class="pill"><span id="activeCount">0</span> active</div>
+            </div>
 
-          <div class="drawerActions">
-            <button class="btn" id="toggleTasksBtn">Hide active list</button>
-            <button class="btn danger" id="clearCompletedBtn">Clear completed</button>
-          </div>
+            <div class="drawerActions">
+              <button class="btn" id="toggleTasksBtn">Hide active list</button>
+              <button class="btn danger" id="clearCompletedBtn">Clear completed</button>
+            </div>
 
-          <div class="drawerHeader" style="margin-top:10px;">
-            <div class="drawerTitle">Completed</div>
-            <div class="pill"><span id="completedCount">0</span></div>
-          </div>
+            <!-- SUMMARY REPORT -->
+            <div class="sectionCard" id="summaryCard">
+              <div class="sectionTop">
+                <h3>Summary report</h3>
+                <div class="pill"><span id="summaryCount">0</span> done</div>
+              </div>
 
-          <div id="completedEmpty" class="empty" style="margin-top:10px;">No completed tasks yet.</div>
-          <div id="completedList" class="completedList" style="margin-top:10px;"></div>
+              <div class="summaryGrid">
+                <div class="statLine">
+                  <span class="statLabel">Total time spent</span>
+                  <span id="summaryTime">0.00 min</span>
+                </div>
+                <div class="statLine">
+                  <span class="statLabel">Avg time per task</span>
+                  <span id="summaryAvg">0.00 min</span>
+                </div>
+
+                <div class="pieWrap">
+                  <canvas id="pieCanvas" width="100" height="100" aria-label="Pie chart by color"></canvas>
+                  <div class="legend" id="pieLegend"></div>
+                </div>
+
+                <div class="statLine" style="margin-top:4px;">
+                  <span class="statLabel">Completed list</span>
+                  <span class="statLabel">(newest first)</span>
+                </div>
+                <ol class="summaryList" id="summaryList"></ol>
+              </div>
+            </div>
+
+            <!-- COMPLETED LIST (detailed) -->
+            <div class="drawerHeader" style="margin-top:12px;">
+              <div class="drawerTitle">Completed</div>
+              <div class="pill"><span id="completedCount">0</span></div>
+            </div>
+
+            <div id="completedEmpty" class="empty" style="margin-top:10px;">No completed tasks yet.</div>
+            <div id="completedList" class="completedList" style="margin-top:10px;"></div>
+          </div>
         </aside>
 
         <section class="content">
@@ -398,11 +487,10 @@
     // -------------------------------
     // Persistence keys
     // -------------------------------
-    const LS_ACTIVE = "todo_active_v3";     // bumped version for new ordering+colors
+    const LS_ACTIVE = "todo_active_v3";
     const LS_COMPLETED = "todo_completed_v2";
     const LS_UI = "todo_ui_v1";
 
-    // Active tasks in memory (id -> task)
     const tasks = new Map();
     let nextId = 1;
 
@@ -420,22 +508,24 @@
     const toggleTasksBtn = $("#toggleTasksBtn");
     const clearCompletedBtn = $("#clearCompletedBtn");
 
-    // Tracks whether the active list is hidden (UI preference)
+    // Summary elements
+    const summaryCountEl = $("#summaryCount");
+    const summaryTimeEl = $("#summaryTime");
+    const summaryAvgEl = $("#summaryAvg");
+    const summaryListEl = $("#summaryList");
+    const pieCanvas = $("#pieCanvas");
+    const pieLegendEl = $("#pieLegend");
+
     const uiState = loadJSON(LS_UI, { hideActiveList: false, drawerHidden: false });
 
-    // Drag state
     let draggingId = null;
 
-    function saveJSON(key, obj) {
-      localStorage.setItem(key, JSON.stringify(obj));
-    }
+    function saveJSON(key, obj) { localStorage.setItem(key, JSON.stringify(obj)); }
     function loadJSON(key, fallback) {
       try {
         const raw = localStorage.getItem(key);
         return raw ? JSON.parse(raw) : fallback;
-      } catch {
-        return fallback;
-      }
+      } catch { return fallback; }
     }
 
     function fmtTime(ms) {
@@ -445,13 +535,19 @@
       return `${m}:${String(r).padStart(2, "0")}`;
     }
 
-    function fmtMinutes(ms) {
-      return `${(ms / 60000).toFixed(2)} min`;
+    function fmtMinutes(ms) { return `${(ms / 60000).toFixed(2)} min`; }
+
+    function fmtHMS(ms) {
+      const total = Math.max(0, Math.round(ms / 1000));
+      const h = Math.floor(total / 3600);
+      const m = Math.floor((total % 3600) / 60);
+      const s = total % 60;
+      if (h > 0) return `${h}h ${m}m ${s}s`;
+      if (m > 0) return `${m}m ${s}s`;
+      return `${s}s`;
     }
 
-    function nowISO() {
-      return new Date().toISOString();
-    }
+    function nowISO() { return new Date().toISOString(); }
 
     function cryptoRandomId() {
       const a = new Uint32Array(2);
@@ -468,18 +564,22 @@
         .replaceAll("'", "&#039;");
     }
 
-    function renderEmpty() {
-      emptyEl.style.display = listOrder().length === 0 ? "block" : "none";
-      activeCountEl.textContent = String(listOrder().length);
+    function normalizeColor(c) {
+      if (typeof c === "string" && /^#([0-9a-f]{6})$/i.test(c)) return c;
+      return "#60a5fa";
     }
 
-    // Returns active task ids in current DOM order (source of truth for ordering)
     function listOrder() {
       return Array.from(listEl.querySelectorAll(".item")).map(el => el.dataset.id);
     }
 
+    function renderEmpty() {
+      const count = listOrder().length;
+      emptyEl.style.display = count === 0 ? "block" : "none";
+      activeCountEl.textContent = String(count);
+    }
+
     function persistActive() {
-      // Persist in visual order
       const order = listOrder();
       const arr = order.map(id => {
         const t = tasks.get(id);
@@ -547,6 +647,8 @@
       completedListEl.querySelectorAll("[data-delete]").forEach(btn => {
         btn.addEventListener("click", () => deleteCompleted(btn.getAttribute("data-delete")));
       });
+
+      renderSummary(); // keep report in sync
     }
 
     function addCompletedFromTask(task, { completedEarly }) {
@@ -562,7 +664,7 @@
         timeUsedMs: Math.max(0, task.elapsedMs || 0)
       });
       setCompleted(completed);
-      renderCompleted();
+      renderCompleted(); // also updates summary
     }
 
     function restoreCompleted(completedId) {
@@ -588,6 +690,139 @@
       renderCompleted();
     }
 
+    // -------------------------------
+    // SUMMARY REPORT
+    // -------------------------------
+    function renderSummary() {
+      const completed = getCompleted();
+
+      const count = completed.length;
+      const totalUsedMs = completed.reduce((sum, c) => sum + (Number(c.timeUsedMs) || 0), 0);
+      const avgMs = count > 0 ? totalUsedMs / count : 0;
+
+      summaryCountEl.textContent = String(count);
+      summaryTimeEl.textContent = `${fmtMinutes(totalUsedMs)} (${fmtHMS(totalUsedMs)})`;
+      summaryAvgEl.textContent = fmtMinutes(avgMs);
+
+      // Completed list (newest first)
+      summaryListEl.innerHTML = "";
+      const newestFirst = completed.slice().reverse();
+      newestFirst.forEach((c) => {
+        const li = document.createElement("li");
+        const used = typeof c.timeUsedMs === "number" ? fmtMinutes(c.timeUsedMs) : "—";
+        li.innerHTML = `<strong>${escapeHTML(c.name)}</strong> — ${used}`;
+        summaryListEl.appendChild(li);
+      });
+
+      // Pie chart by color (based on time used; fallback to count if time is 0 everywhere)
+      const byColorMs = new Map();
+      let anyTime = false;
+
+      completed.forEach((c) => {
+        const color = normalizeColor(c.color);
+        const ms = Number(c.timeUsedMs) || 0;
+        if (ms > 0) anyTime = true;
+        byColorMs.set(color, (byColorMs.get(color) || 0) + ms);
+      });
+
+      // If no time recorded (e.g., all completed without starting), use counts
+      let slices = [];
+      if (count === 0) {
+        slices = [];
+      } else if (anyTime) {
+        slices = Array.from(byColorMs.entries())
+          .filter(([, ms]) => ms > 0)
+          .map(([color, ms]) => ({ color, value: ms }));
+      } else {
+        const byColorCount = new Map();
+        completed.forEach((c) => {
+          const color = normalizeColor(c.color);
+          byColorCount.set(color, (byColorCount.get(color) || 0) + 1);
+        });
+        slices = Array.from(byColorCount.entries()).map(([color, n]) => ({ color, value: n }));
+      }
+
+      drawPie(pieCanvas, slices);
+
+      // Legend
+      pieLegendEl.innerHTML = "";
+      const total = slices.reduce((s, x) => s + x.value, 0);
+      slices
+        .slice()
+        .sort((a, b) => b.value - a.value)
+        .forEach((s) => {
+          const row = document.createElement("div");
+          row.className = "legendRow";
+          const pct = total > 0 ? Math.round((s.value / total) * 100) : 0;
+          row.innerHTML = `
+            <span class="legendDot" style="--c:${s.color}; background:${s.color};"></span>
+            <span>${s.color}</span>
+            <span style="margin-left:auto;">${pct}%</span>
+          `;
+          pieLegendEl.appendChild(row);
+        });
+
+      if (slices.length === 0) {
+        pieLegendEl.innerHTML = `<div class="legendRow"><span style="color:var(--muted);">No data yet.</span></div>`;
+      }
+    }
+
+    function drawPie(canvas, slices) {
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width, h = canvas.height;
+      const cx = w / 2, cy = h / 2;
+      const r = Math.min(w, h) / 2 - 3;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // background ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,0.06)";
+      ctx.fill();
+
+      const total = slices.reduce((s, x) => s + x.value, 0);
+      if (!total) {
+        // hollow center
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 0.62, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0,0,0,0.25)";
+        ctx.fill();
+        return;
+      }
+
+      let a = -Math.PI / 2; // start at top
+      slices.forEach((s) => {
+        const frac = s.value / total;
+        const next = a + frac * Math.PI * 2;
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, r, a, next);
+        ctx.closePath();
+        ctx.fillStyle = s.color;
+        ctx.fill();
+
+        a = next;
+      });
+
+      // center donut
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * 0.62, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(0,0,0,0.25)";
+      ctx.fill();
+
+      // subtle outline
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(255,255,255,0.10)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    // -------------------------------
+    // Active tasks
+    // -------------------------------
     function createTask({ name, minutes, color }, { persist = true } = {}) {
       const id = String(nextId++);
       const totalMs = minutes * 60 * 1000;
@@ -596,7 +831,7 @@
         id,
         name,
         minutes,
-        color,
+        color: normalizeColor(color),
         totalMs,
         remainingMs: totalMs,
         elapsedMs: 0,
@@ -607,10 +842,24 @@
       };
 
       tasks.set(id, task);
-      // Add at top (newest first) to match prior behavior
       listEl.prepend(buildTaskEl(task));
       renderEmpty();
       if (persist) persistActive();
+    }
+
+    function clearDropHints() {
+      listEl.querySelectorAll(".dropHint").forEach(el => el.classList.remove("dropHint"));
+    }
+
+    function setTaskColor(taskId, newColor) {
+      const task = tasks.get(taskId);
+      if (!task) return;
+      task.color = normalizeColor(newColor);
+
+      const item = listEl.querySelector(`.item[data-id="${taskId}"]`);
+      if (item) item.style.setProperty("--accent", task.color);
+
+      persistActive();
     }
 
     function buildTaskEl(task) {
@@ -634,10 +883,7 @@
             <button class="btn primary start">Start</button>
             <button class="btn pause" disabled>Pause</button>
             <button class="btn primary done" title="Mark complete early">Done</button>
-
-            <!-- Change color: quick picker -->
             <input class="colorPicker" type="color" title="Change color" aria-label="Change color" />
-
             <button class="btn delete">Delete</button>
           </div>
         </div>
@@ -671,14 +917,10 @@
       pauseBtn.addEventListener("click", () => pauseTask(task.id));
       doneBtn.addEventListener("click", () => completeTask(task.id, { completedEarly: true }));
       delBtn.addEventListener("click", () => removeTask(task.id, { persist: true }));
+      colorPicker.addEventListener("input", (e) => setTaskColor(task.id, e.target.value));
 
-      colorPicker.addEventListener("input", (e) => {
-        setTaskColor(task.id, e.target.value);
-      });
-
-      // Drag & drop reorder
+      // Drag reorder
       item.addEventListener("dragstart", (e) => {
-        // Prevent dragging when interacting with buttons/inputs (common annoyance)
         const target = e.target;
         if (target.closest("button") || target.closest("input") || target.closest("select")) {
           e.preventDefault();
@@ -703,9 +945,7 @@
         if (draggingId && draggingId !== task.id) item.classList.add("dropHint");
       });
 
-      item.addEventListener("dragleave", () => {
-        item.classList.remove("dropHint");
-      });
+      item.addEventListener("dragleave", () => item.classList.remove("dropHint"));
 
       item.addEventListener("drop", (e) => {
         e.preventDefault();
@@ -717,50 +957,18 @@
         const toEl = listEl.querySelector(`.item[data-id="${toId}"]`);
         if (!fromEl || !toEl) return;
 
-        // Insert before/after based on cursor position
         const rect = toEl.getBoundingClientRect();
         const before = e.clientY < rect.top + rect.height / 2;
 
-        if (before) {
-          listEl.insertBefore(fromEl, toEl);
-        } else {
-          listEl.insertBefore(fromEl, toEl.nextSibling);
-        }
+        if (before) listEl.insertBefore(fromEl, toEl);
+        else listEl.insertBefore(fromEl, toEl.nextSibling);
 
         clearDropHints();
         renderEmpty();
         persistActive();
       });
 
-      // Make sure only the handle feels like "draggy" on mobile-ish use:
-      // (Still HTML5 drag; works best on desktop. iOS Safari support varies.)
-      // We'll also support Up/Down buttons via keyboard? Not requested—skip.
-
       return item;
-    }
-
-    function clearDropHints() {
-      listEl.querySelectorAll(".dropHint").forEach(el => el.classList.remove("dropHint"));
-    }
-
-    function normalizeColor(c) {
-      // If already #rrggbb, keep it. Otherwise default.
-      if (typeof c === "string" && /^#([0-9a-f]{6})$/i.test(c)) return c;
-      // Convert some common named values? keep simple.
-      return "#60a5fa";
-    }
-
-    function setTaskColor(taskId, newColor) {
-      const task = tasks.get(taskId);
-      if (!task) return;
-      task.color = normalizeColor(newColor);
-
-      const item = listEl.querySelector(`.item[data-id="${taskId}"]`);
-      if (item) {
-        item.style.setProperty("--accent", task.color);
-        // keep dot + fill updated automatically via CSS var
-      }
-      persistActive();
     }
 
     function updateTaskUI(task) {
@@ -881,7 +1089,7 @@
     }
 
     // -------------------------------
-    // UI: menu + hide active list
+    // UI toggles
     // -------------------------------
     function applyUIState() {
       drawerEl.classList.toggle("hide", uiState.drawerHidden);
@@ -902,9 +1110,7 @@
       applyUIState();
     });
 
-    clearCompletedBtn.addEventListener("click", () => {
-      clearCompleted();
-    });
+    clearCompletedBtn.addEventListener("click", () => clearCompleted());
 
     // -------------------------------
     // Form wiring
@@ -924,7 +1130,7 @@
     });
 
     // -------------------------------
-    // Restore from localStorage
+    // Restore
     // -------------------------------
     function restoreActive() {
       const saved = loadJSON(LS_ACTIVE, null);
@@ -935,7 +1141,6 @@
 
       nextId = Math.max(1, Number(saved.nextId) || 1);
 
-      // Restore in saved order (top -> bottom)
       saved.tasks.forEach((t) => {
         const task = {
           id: String(t.id),
@@ -960,7 +1165,7 @@
 
     // Boot
     restoreActive();
-    renderCompleted();
+    renderCompleted(); // also renders summary
     applyUIState();
   </script>
 </body>
