@@ -135,6 +135,7 @@
       border: 1px solid var(--border);
       background: rgba(255,255,255,0.06);
       color: var(--text);
+      white-space: nowrap;
     }
 
     .drawerActions {
@@ -153,6 +154,7 @@
       padding: 0 12px;
       cursor: pointer;
       font-size: 13px;
+      white-space: nowrap;
     }
     .btn:hover { filter: brightness(1.05); }
     .btn:disabled { cursor:not-allowed; opacity:0.55; }
@@ -177,14 +179,13 @@
       justify-content: space-between;
       gap: 10px;
       align-items: baseline;
+      flex-wrap: wrap;
     }
     .completedName { font-weight: 650; }
     .completedMeta { color: var(--muted); font-size: 12px; }
     .completedTime { color: var(--muted); font-size: 12px; margin-top: 6px; }
 
-    .content {
-      min-height: 200px;
-    }
+    .content { min-height: 200px; }
 
     .empty {
       color: var(--muted);
@@ -242,7 +243,7 @@
     .name { font-weight: 650; letter-spacing: 0.2px; }
     .meta { color: var(--muted); font-size: 13px; }
 
-    .controls { display: flex; gap: 8px; align-items: center; }
+    .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
     .btn.primary {
       border-color: color-mix(in srgb, var(--accent) 55%, transparent);
@@ -277,6 +278,8 @@
       padding: 0 14px 14px;
       color: var(--muted);
       font-size: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
     .hide { display: none !important; }
@@ -299,7 +302,7 @@
         <button class="menuBtn" id="menuBtn" title="Toggle menu" aria-label="Toggle menu">☰</button>
         <div>
           <h1>Countdown Todo</h1>
-          <p class="sub">Tasks vanish when done, but completion history is remembered.</p>
+          <p class="sub">Finish naturally or mark complete early. Completion logs time actually used.</p>
         </div>
       </div>
 
@@ -352,8 +355,8 @@
     // -------------------------------
     // Persistence keys
     // -------------------------------
-    const LS_ACTIVE = "todo_active_v1";
-    const LS_COMPLETED = "todo_completed_v1";
+    const LS_ACTIVE = "todo_active_v2";
+    const LS_COMPLETED = "todo_completed_v2";
     const LS_UI = "todo_ui_v1";
 
     // Active tasks in memory (id -> task)
@@ -396,6 +399,12 @@
       return `${m}:${String(r).padStart(2, "0")}`;
     }
 
+    function fmtMinutes(ms) {
+      const mins = ms / 60000;
+      // 2 decimals, but don't be obnoxious
+      return `${mins.toFixed(2)} min`;
+    }
+
     function nowISO() {
       return new Date().toISOString();
     }
@@ -413,7 +422,9 @@
         minutes: t.minutes,
         color: t.color,
         totalMs: t.totalMs,
-        remainingMs: t.remainingMs
+        remainingMs: t.remainingMs,
+        elapsedMs: t.elapsedMs || 0,
+        running: false // restore paused
       }));
       saveJSON(LS_ACTIVE, { nextId, tasks: arr });
     }
@@ -435,20 +446,28 @@
       completed.slice().reverse().forEach((c) => {
         const el = document.createElement("div");
         el.className = "completedItem";
-        el.style.setProperty("--accent", c.color);
 
         const when = new Date(c.completedAt);
         const nice = isNaN(when.getTime()) ? c.completedAt : when.toLocaleString();
+
+        const used = typeof c.timeUsedMs === "number" ? fmtMinutes(c.timeUsedMs) : "—";
+        const planned = typeof c.plannedMs === "number" ? fmtMinutes(c.plannedMs) : "—";
+        const early = c.completedEarly ? " • early" : "";
 
         el.innerHTML = `
           <div class="completedTop">
             <div>
               <span class="completedName">${escapeHTML(c.name)}</span>
-              <span class="completedMeta"> • ${c.minutes} min</span>
+              <span class="completedMeta"> • ${c.minutes} min${early}</span>
             </div>
             <div class="completedMeta" style="white-space:nowrap;">${nice}</div>
           </div>
-          <div class="completedTime">Color: <span style="color:${c.color}; font-weight:650;">${c.color}</span></div>
+          <div class="completedTime">
+            Used: <strong>${used}</strong> / Planned: <strong>${planned}</strong>
+          </div>
+          <div class="completedTime">
+            Color: <span style="color:${c.color}; font-weight:650;">${c.color}</span>
+          </div>
           <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn" data-restore="${c.id}">Restore</button>
             <button class="btn danger" data-delete="${c.id}">Delete</button>
@@ -467,15 +486,26 @@
       });
     }
 
-    function addCompletedFromTask(task) {
+    function addCompletedFromTask(task, { completedEarly }) {
       const completed = getCompleted();
+
+      // How much time was actually needed?
+      // - We track elapsedMs during runs
+      // - If they complete without starting, elapsedMs is 0
+      const plannedMs = task.totalMs;
+      const elapsedMs = Math.max(0, task.elapsedMs || 0);
+
       completed.push({
         id: "c_" + cryptoRandomId(),
         name: task.name,
         minutes: task.minutes,
         color: task.color,
-        completedAt: nowISO()
+        completedAt: nowISO(),
+        completedEarly: !!completedEarly,
+        plannedMs,
+        timeUsedMs: elapsedMs
       });
+
       setCompleted(completed);
       renderCompleted();
     }
@@ -506,7 +536,6 @@
     }
 
     function cryptoRandomId() {
-      // Small unique id
       const a = new Uint32Array(2);
       (crypto || window.crypto).getRandomValues(a);
       return a[0].toString(16) + a[1].toString(16);
@@ -532,6 +561,11 @@
         color,
         totalMs,
         remainingMs: totalMs,
+
+        // NEW: log time used
+        elapsedMs: 0,
+        lastTickAt: null,
+
         running: false,
         raf: null,
         endsAt: null
@@ -559,6 +593,7 @@
           <div class="controls">
             <button class="btn primary start">Start</button>
             <button class="btn pause" disabled>Pause</button>
+            <button class="btn primary done" title="Mark complete early">Done</button>
             <button class="btn delete">Delete</button>
           </div>
         </div>
@@ -569,6 +604,7 @@
         </div>
         <div class="footer">
           <span class="left"></span>
+          <span class="mid"></span>
           <span class="right"></span>
         </div>
       `;
@@ -576,14 +612,17 @@
       item.querySelector(".name").textContent = task.name;
       item.querySelector(".meta").textContent = `• ${task.minutes} min`;
       item.querySelector(".left").textContent = `Remaining: ${fmtTime(task.remainingMs)}`;
+      item.querySelector(".mid").textContent = `Used: ${fmtMinutes(task.elapsedMs)}`;
       item.querySelector(".right").textContent = `100%`;
 
       const startBtn = item.querySelector(".start");
       const pauseBtn = item.querySelector(".pause");
+      const doneBtn = item.querySelector(".done");
       const delBtn = item.querySelector(".delete");
 
       startBtn.addEventListener("click", () => startTask(task.id));
       pauseBtn.addEventListener("click", () => pauseTask(task.id));
+      doneBtn.addEventListener("click", () => completeTask(task.id, { completedEarly: true }));
       delBtn.addEventListener("click", () => removeTask(task.id, { persist: true }));
 
       return item;
@@ -596,6 +635,7 @@
       const fill = item.querySelector(".fill");
       const bar = item.querySelector(".bar");
       const left = item.querySelector(".left");
+      const mid = item.querySelector(".mid");
       const right = item.querySelector(".right");
       const startBtn = item.querySelector(".start");
       const pauseBtn = item.querySelector(".pause");
@@ -606,6 +646,7 @@
       const ariaNow = Math.round(pct * 100);
       bar.setAttribute("aria-valuenow", String(ariaNow));
       left.textContent = `Remaining: ${fmtTime(task.remainingMs)}`;
+      mid.textContent = `Used: ${fmtMinutes(task.elapsedMs)}`;
       right.textContent = `${ariaNow}%`;
 
       startBtn.disabled = task.running;
@@ -618,11 +659,19 @@
       if (!task || !task.running) return;
 
       const now = performance.now();
+
+      // Update elapsed time based on last tick
+      if (task.lastTickAt != null) {
+        const dt = Math.max(0, now - task.lastTickAt);
+        task.elapsedMs += dt;
+      }
+      task.lastTickAt = now;
+
       task.remainingMs = Math.max(0, task.endsAt - now);
       updateTaskUI(task);
 
       if (task.remainingMs <= 0) {
-        completeTask(taskId);
+        completeTask(taskId, { completedEarly: false });
         return;
       }
 
@@ -635,6 +684,8 @@
 
       task.running = true;
       const now = performance.now();
+
+      task.lastTickAt = now;
       task.endsAt = now + task.remainingMs;
 
       updateTaskUI(task);
@@ -650,19 +701,30 @@
       if (task.raf) cancelAnimationFrame(task.raf);
       task.raf = null;
 
+      // Freeze elapsed tracking
+      task.lastTickAt = null;
+
       updateTaskUI(task);
       persistActive();
     }
 
-    function completeTask(taskId) {
+    function completeTask(taskId, { completedEarly }) {
       const task = tasks.get(taskId);
       if (!task) return;
+
+      // If they hit Done while running, capture the last slice of elapsed time
+      if (task.running && task.lastTickAt != null) {
+        const now = performance.now();
+        const dt = Math.max(0, now - task.lastTickAt);
+        task.elapsedMs += dt;
+        task.lastTickAt = null;
+      }
 
       task.running = false;
       if (task.raf) cancelAnimationFrame(task.raf);
 
-      // Save completion record
-      addCompletedFromTask(task);
+      // Save completion record with time used
+      addCompletedFromTask(task, { completedEarly });
 
       const item = listEl.querySelector(`.item[data-id="${task.id}"]`);
       if (item) {
@@ -696,10 +758,7 @@
     // UI: menu + hide active list
     // -------------------------------
     function applyUIState() {
-      // Drawer hidden (on small screens this feels like a slide-away)
       drawerEl.classList.toggle("hide", uiState.drawerHidden);
-
-      // Active list hidden
       listEl.classList.toggle("hide", uiState.hideActiveList);
       emptyEl.classList.toggle("hide", uiState.hideActiveList);
 
@@ -751,7 +810,6 @@
       nextId = Math.max(1, Number(saved.nextId) || 1);
 
       saved.tasks.forEach((t) => {
-        // Restore active tasks paused (not running)
         const task = {
           id: String(t.id),
           name: t.name,
@@ -759,6 +817,10 @@
           color: t.color,
           totalMs: Number(t.totalMs),
           remainingMs: Number(t.remainingMs),
+
+          elapsedMs: Number(t.elapsedMs || 0),
+          lastTickAt: null,
+
           running: false,
           raf: null,
           endsAt: null
