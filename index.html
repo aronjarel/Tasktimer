@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Countdown Todo</title>
+  <style>
+    :root {
+      --bg: #0b0f1a;
+      --panel: #111a2e;
+      --text: #eaf0ff;
+      --muted: #a9b4d1;
+      --border: rgba(255,255,255,0.10);
+      --shadow: rgba(0,0,0,0.35);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: radial-gradient(1200px 800px at 20% 10%, #1a2550 0%, transparent 60%),
+                  radial-gradient(900px 700px at 80% 20%, #3a1f55 0%, transparent 55%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: min(920px, 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 18px 60px var(--shadow);
+      overflow: hidden;
+    }
+
+    header {
+      padding: 20px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: end;
+      justify-content: space-between;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0.4px;
+    }
+
+    .sub {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .form {
+      display: grid;
+      grid-template-columns: 1fr 160px 140px 110px;
+      gap: 10px;
+      align-items: center;
+      width: min(640px, 100%);
+    }
+
+    .form input, .form select, .form button {
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(17,26,46,0.85);
+      color: var(--text);
+      padding: 0 12px;
+      outline: none;
+    }
+    .form input::placeholder { color: rgba(234,240,255,0.45); }
+
+    .form button {
+      cursor: pointer;
+      background: linear-gradient(180deg, rgba(110,231,183,0.22), rgba(110,231,183,0.12));
+      border: 1px solid rgba(110,231,183,0.35);
+    }
+    .form button:hover { filter: brightness(1.05); }
+
+    main { padding: 18px 20px 22px; }
+
+    .empty {
+      color: var(--muted);
+      font-size: 14px;
+      padding: 14px;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      background: rgba(17,26,46,0.35);
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .item {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(17,26,46,0.55);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .item::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      opacity:0.10;
+      background: radial-gradient(800px 220px at 20% 0%, var(--accent) 0%, transparent 60%);
+      pointer-events:none;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      padding: 14px 14px 10px;
+      align-items: center;
+      position: relative;
+    }
+
+    .title {
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+
+    .dot {
+      width: 10px; height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.04);
+      flex: 0 0 auto;
+      transform: translateY(1px);
+    }
+
+    .name {
+      font-weight: 650;
+      letter-spacing: 0.2px;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn {
+      height: 34px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      padding: 0 12px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .btn.primary {
+      border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+      background: color-mix(in srgb, var(--accent) 20%, rgba(255,255,255,0.06));
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .barWrap {
+      padding: 0 14px 14px;
+    }
+
+    .bar {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg,
+        color-mix(in srgb, var(--accent) 70%, white 0%),
+        color-mix(in srgb, var(--accent) 45%, white 10%));
+      border-radius: 999px;
+      transform-origin: left center;
+      transform: scaleX(1);
+      transition: transform 80ms linear;
+    }
+
+    .footer {
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      padding: 0 14px 14px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 720px) {
+      .form { grid-template-columns: 1fr 1fr; }
+      .form button { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>Countdown Todo</h1>
+        <p class="sub">Create a task, set time, hit Start. Bar shrinks to zero. Task disappears.</p>
+      </div>
+
+      <form class="form" id="taskForm" autocomplete="off">
+        <input id="taskName" type="text" placeholder="Task name (e.g., 'Email client')" required maxlength="80" />
+        <input id="taskMinutes" type="number" min="1" max="600" step="1" placeholder="Minutes" required />
+        <select id="taskColor" aria-label="Color">
+          <option value="#60a5fa">Blue</option>
+          <option value="#34d399">Green</option>
+          <option value="#fbbf24">Amber</option>
+          <option value="#f87171">Red</option>
+          <option value="#a78bfa">Purple</option>
+          <option value="#22d3ee">Cyan</option>
+        </select>
+        <button type="submit">Add</button>
+      </form>
+    </header>
+
+    <main>
+      <div id="empty" class="empty">No tasks yet. Add one above.</div>
+      <div id="list" class="list" aria-live="polite"></div>
+    </main>
+  </div>
+
+  <script>
+    // --- Tiny state store for tasks ---
+    const tasks = new Map(); // id -> task object
+    let nextId = 1;
+
+    const $ = (sel) => document.querySelector(sel);
+    const listEl = $("#list");
+    const emptyEl = $("#empty");
+
+    function fmtTime(ms) {
+      const s = Math.max(0, Math.ceil(ms / 1000));
+      const m = Math.floor(s / 60);
+      const r = s % 60;
+      return `${m}:${String(r).padStart(2, "0")}`;
+    }
+
+    function renderEmpty() {
+      emptyEl.style.display = tasks.size === 0 ? "block" : "none";
+    }
+
+    function createTask({ name, minutes, color }) {
+      const id = String(nextId++);
+      const totalMs = minutes * 60 * 1000;
+
+      const task = {
+        id,
+        name,
+        minutes,
+        color,
+        totalMs,
+        remainingMs: totalMs,
+        running: false,
+        raf: null,
+        startedAt: null,
+        endsAt: null
+      };
+
+      tasks.set(id, task);
+      listEl.prepend(buildTaskEl(task));
+      renderEmpty();
+    }
+
+    function buildTaskEl(task) {
+      const item = document.createElement("div");
+      item.className = "item";
+      item.dataset.id = task.id;
+      item.style.setProperty("--accent", task.color);
+
+      item.innerHTML = `
+        <div class="row">
+          <div class="title">
+            <span class="dot" aria-hidden="true"></span>
+            <span class="name"></span>
+            <span class="meta"></span>
+          </div>
+          <div class="controls">
+            <button class="btn primary start">Start</button>
+            <button class="btn pause" disabled>Pause</button>
+            <button class="btn delete">Delete</button>
+          </div>
+        </div>
+        <div class="barWrap">
+          <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+            <div class="fill"></div>
+          </div>
+        </div>
+        <div class="footer">
+          <span class="left"></span>
+          <span class="right"></span>
+        </div>
+      `;
+
+      item.querySelector(".name").textContent = task.name;
+      item.querySelector(".meta").textContent = `• ${task.minutes} min`;
+      item.querySelector(".left").textContent = `Remaining: ${fmtTime(task.remainingMs)}`;
+      item.querySelector(".right").textContent = `100%`;
+
+      const startBtn = item.querySelector(".start");
+      const pauseBtn = item.querySelector(".pause");
+      const delBtn = item.querySelector(".delete");
+
+      startBtn.addEventListener("click", () => startTask(task.id));
+      pauseBtn.addEventListener("click", () => pauseTask(task.id));
+      delBtn.addEventListener("click", () => removeTask(task.id));
+
+      return item;
+    }
+
+    function updateTaskUI(task) {
+      const item = listEl.querySelector(`.item[data-id="${task.id}"]`);
+      if (!item) return;
+
+      const fill = item.querySelector(".fill");
+      const bar = item.querySelector(".bar");
+      const left = item.querySelector(".left");
+      const right = item.querySelector(".right");
+      const startBtn = item.querySelector(".start");
+      const pauseBtn = item.querySelector(".pause");
+
+      const pct = task.totalMs === 0 ? 0 : (task.remainingMs / task.totalMs);
+      fill.style.transform = `scaleX(${Math.max(0, Math.min(1, pct))})`;
+
+      const ariaNow = Math.round(pct * 100);
+      bar.setAttribute("aria-valuenow", String(ariaNow));
+      left.textContent = `Remaining: ${fmtTime(task.remainingMs)}`;
+      right.textContent = `${ariaNow}%`;
+
+      startBtn.disabled = task.running;
+      pauseBtn.disabled = !task.running;
+      startBtn.textContent = task.remainingMs < task.totalMs ? "Resume" : "Start";
+    }
+
+    function tick(taskId) {
+      const task = tasks.get(taskId);
+      if (!task || !task.running) return;
+
+      const now = performance.now();
+      task.remainingMs = Math.max(0, task.endsAt - now);
+      updateTaskUI(task);
+
+      if (task.remainingMs <= 0) {
+        completeTask(taskId);
+        return;
+      }
+
+      task.raf = requestAnimationFrame(() => tick(taskId));
+    }
+
+    function startTask(taskId) {
+      const task = tasks.get(taskId);
+      if (!task || task.running) return;
+
+      task.running = true;
+
+      const now = performance.now();
+      // If resuming, remainingMs is already reduced.
+      task.startedAt = now;
+      task.endsAt = now + task.remainingMs;
+
+      updateTaskUI(task);
+      task.raf = requestAnimationFrame(() => tick(taskId));
+    }
+
+    function pauseTask(taskId) {
+      const task = tasks.get(taskId);
+      if (!task || !task.running) return;
+
+      task.running = false;
+      if (task.raf) cancelAnimationFrame(task.raf);
+      task.raf = null;
+
+      // remainingMs already updated in tick; just freeze UI
+      updateTaskUI(task);
+    }
+
+    function completeTask(taskId) {
+      const task = tasks.get(taskId);
+      if (!task) return;
+
+      task.running = false;
+      if (task.raf) cancelAnimationFrame(task.raf);
+
+      const item = listEl.querySelector(`.item[data-id="${task.id}"]`);
+      if (item) {
+        // tiny vanish animation
+        item.animate(
+          [
+            { opacity: 1, transform: "scale(1)" },
+            { opacity: 0, transform: "scale(0.98)" }
+          ],
+          { duration: 220, easing: "ease-out" }
+        ).onfinish = () => removeTask(taskId);
+      } else {
+        removeTask(taskId);
+      }
+    }
+
+    function removeTask(taskId) {
+      const task = tasks.get(taskId);
+      if (!task) return;
+
+      if (task.raf) cancelAnimationFrame(task.raf);
+      tasks.delete(taskId);
+
+      const item = listEl.querySelector(`.item[data-id="${taskId}"]`);
+      if (item) item.remove();
+
+      renderEmpty();
+    }
+
+    // --- Form wiring ---
+    $("#taskForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = $("#taskName").value.trim();
+      const minutes = Number($("#taskMinutes").value);
+      const color = $("#taskColor").value;
+
+      if (!name || !Number.isFinite(minutes) || minutes <= 0) return;
+
+      createTask({ name, minutes, color });
+
+      e.target.reset();
+      $("#taskName").focus();
+    });
+
+    renderEmpty();
+  </script>
+</body>
+</html>
