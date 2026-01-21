@@ -12,6 +12,7 @@
       --muted: #a9b4d1;
       --border: rgba(255,255,255,0.10);
       --shadow: rgba(0,0,0,0.35);
+      --danger: rgba(248,113,113,0.25);
     }
 
     * { box-sizing: border-box; }
@@ -29,7 +30,7 @@
     }
 
     .app {
-      width: min(920px, 100%);
+      width: min(980px, 100%);
       background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
       border: 1px solid var(--border);
       border-radius: 18px;
@@ -38,12 +39,12 @@
     }
 
     header {
-      padding: 20px 20px 14px;
+      padding: 18px 18px 14px;
       border-bottom: 1px solid var(--border);
       display: flex;
-      gap: 14px;
+      gap: 12px;
       flex-wrap: wrap;
-      align-items: end;
+      align-items: center;
       justify-content: space-between;
     }
 
@@ -52,21 +53,31 @@
       font-size: 18px;
       letter-spacing: 0.4px;
     }
+    .sub { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
 
-    .sub {
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 13px;
+    .leftHead { display:flex; align-items:center; gap:12px; }
+    .menuBtn {
+      height: 38px;
+      width: 44px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 0;
+      display:grid;
+      place-items:center;
     }
+    .menuBtn:hover { filter: brightness(1.05); }
 
     .form {
       display: grid;
-      grid-template-columns: 1fr 160px 140px 110px;
+      grid-template-columns: 1fr 150px 140px 110px;
       gap: 10px;
       align-items: center;
-      width: min(640px, 100%);
+      width: min(660px, 100%);
     }
-
     .form input, .form select, .form button {
       height: 40px;
       border-radius: 12px;
@@ -77,7 +88,6 @@
       outline: none;
     }
     .form input::placeholder { color: rgba(234,240,255,0.45); }
-
     .form button {
       cursor: pointer;
       background: linear-gradient(180deg, rgba(110,231,183,0.22), rgba(110,231,183,0.12));
@@ -85,7 +95,96 @@
     }
     .form button:hover { filter: brightness(1.05); }
 
-    main { padding: 18px 20px 22px; }
+    main { padding: 16px 18px 20px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .drawer {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(17,26,46,0.45);
+      padding: 12px;
+      overflow: hidden;
+      max-height: 70vh;
+    }
+
+    .drawerHeader {
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom: 10px;
+    }
+
+    .drawerTitle {
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .pill {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+    }
+
+    .drawerActions {
+      display:flex;
+      gap:8px;
+      flex-wrap: wrap;
+      margin: 8px 0 10px;
+    }
+
+    .btn {
+      height: 34px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      padding: 0 12px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .btn:hover { filter: brightness(1.05); }
+    .btn:disabled { cursor:not-allowed; opacity:0.55; }
+    .btn.danger {
+      border-color: rgba(248,113,113,0.35);
+      background: var(--danger);
+    }
+
+    .completedList {
+      display: grid;
+      gap: 8px;
+    }
+
+    .completedItem {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.04);
+      padding: 10px;
+    }
+    .completedTop {
+      display:flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+    }
+    .completedName { font-weight: 650; }
+    .completedMeta { color: var(--muted); font-size: 12px; }
+    .completedTime { color: var(--muted); font-size: 12px; margin-top: 6px; }
+
+    .content {
+      min-height: 200px;
+    }
 
     .empty {
       color: var(--muted);
@@ -96,10 +195,7 @@
       background: rgba(17,26,46,0.35);
     }
 
-    .list {
-      display: grid;
-      gap: 12px;
-    }
+    .list { display: grid; gap: 12px; }
 
     .item {
       border: 1px solid var(--border);
@@ -143,47 +239,17 @@
       transform: translateY(1px);
     }
 
-    .name {
-      font-weight: 650;
-      letter-spacing: 0.2px;
-    }
+    .name { font-weight: 650; letter-spacing: 0.2px; }
+    .meta { color: var(--muted); font-size: 13px; }
 
-    .meta {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .controls {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .btn {
-      height: 34px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      padding: 0 12px;
-      cursor: pointer;
-      font-size: 13px;
-    }
+    .controls { display: flex; gap: 8px; align-items: center; }
 
     .btn.primary {
       border-color: color-mix(in srgb, var(--accent) 55%, transparent);
       background: color-mix(in srgb, var(--accent) 20%, rgba(255,255,255,0.06));
     }
 
-    .btn:disabled {
-      cursor: not-allowed;
-      opacity: 0.55;
-    }
-
-    .barWrap {
-      padding: 0 14px 14px;
-    }
-
+    .barWrap { padding: 0 14px 14px; }
     .bar {
       height: 10px;
       border-radius: 999px;
@@ -192,7 +258,6 @@
       overflow: hidden;
       position: relative;
     }
-
     .fill {
       height: 100%;
       width: 100%;
@@ -214,6 +279,13 @@
       font-size: 12px;
     }
 
+    .hide { display: none !important; }
+
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      .drawer { order: 2; }
+    }
+
     @media (max-width: 720px) {
       .form { grid-template-columns: 1fr 1fr; }
       .form button { grid-column: 1 / -1; }
@@ -223,13 +295,16 @@
 <body>
   <div class="app">
     <header>
-      <div>
-        <h1>Countdown Todo</h1>
-        <p class="sub">Create a task, set time, hit Start. Bar shrinks to zero. Task disappears.</p>
+      <div class="leftHead">
+        <button class="menuBtn" id="menuBtn" title="Toggle menu" aria-label="Toggle menu">☰</button>
+        <div>
+          <h1>Countdown Todo</h1>
+          <p class="sub">Tasks vanish when done, but completion history is remembered.</p>
+        </div>
       </div>
 
       <form class="form" id="taskForm" autocomplete="off">
-        <input id="taskName" type="text" placeholder="Task name (e.g., 'Email client')" required maxlength="80" />
+        <input id="taskName" type="text" placeholder="Task name" required maxlength="80" />
         <input id="taskMinutes" type="number" min="1" max="600" step="1" placeholder="Minutes" required />
         <select id="taskColor" aria-label="Color">
           <option value="#60a5fa">Blue</option>
@@ -244,19 +319,75 @@
     </header>
 
     <main>
-      <div id="empty" class="empty">No tasks yet. Add one above.</div>
-      <div id="list" class="list" aria-live="polite"></div>
+      <div class="layout">
+        <aside class="drawer" id="drawer">
+          <div class="drawerHeader">
+            <div class="drawerTitle">Menu</div>
+            <div class="pill"><span id="activeCount">0</span> active</div>
+          </div>
+
+          <div class="drawerActions">
+            <button class="btn" id="toggleTasksBtn">Hide active list</button>
+            <button class="btn danger" id="clearCompletedBtn">Clear completed</button>
+          </div>
+
+          <div class="drawerHeader" style="margin-top:10px;">
+            <div class="drawerTitle">Completed</div>
+            <div class="pill"><span id="completedCount">0</span></div>
+          </div>
+
+          <div id="completedEmpty" class="empty" style="margin-top:10px;">No completed tasks yet.</div>
+          <div id="completedList" class="completedList" style="margin-top:10px;"></div>
+        </aside>
+
+        <section class="content">
+          <div id="empty" class="empty">No tasks yet. Add one above.</div>
+          <div id="list" class="list" aria-live="polite"></div>
+        </section>
+      </div>
     </main>
   </div>
 
   <script>
-    // --- Tiny state store for tasks ---
-    const tasks = new Map(); // id -> task object
+    // -------------------------------
+    // Persistence keys
+    // -------------------------------
+    const LS_ACTIVE = "todo_active_v1";
+    const LS_COMPLETED = "todo_completed_v1";
+    const LS_UI = "todo_ui_v1";
+
+    // Active tasks in memory (id -> task)
+    const tasks = new Map();
     let nextId = 1;
 
     const $ = (sel) => document.querySelector(sel);
     const listEl = $("#list");
     const emptyEl = $("#empty");
+    const activeCountEl = $("#activeCount");
+
+    const completedListEl = $("#completedList");
+    const completedEmptyEl = $("#completedEmpty");
+    const completedCountEl = $("#completedCount");
+
+    const drawerEl = $("#drawer");
+    const menuBtn = $("#menuBtn");
+    const toggleTasksBtn = $("#toggleTasksBtn");
+    const clearCompletedBtn = $("#clearCompletedBtn");
+
+    // Tracks whether the active list is hidden (UI preference)
+    const uiState = loadJSON(LS_UI, { hideActiveList: false, drawerHidden: false });
+
+    function saveJSON(key, obj) {
+      localStorage.setItem(key, JSON.stringify(obj));
+    }
+    function loadJSON(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch {
+        return fallback;
+      }
+    }
 
     function fmtTime(ms) {
       const s = Math.max(0, Math.ceil(ms / 1000));
@@ -265,11 +396,132 @@
       return `${m}:${String(r).padStart(2, "0")}`;
     }
 
-    function renderEmpty() {
-      emptyEl.style.display = tasks.size === 0 ? "block" : "none";
+    function nowISO() {
+      return new Date().toISOString();
     }
 
-    function createTask({ name, minutes, color }) {
+    function renderEmpty() {
+      emptyEl.style.display = tasks.size === 0 ? "block" : "none";
+      activeCountEl.textContent = String(tasks.size);
+    }
+
+    function persistActive() {
+      // Only persist fields needed to restore
+      const arr = Array.from(tasks.values()).map(t => ({
+        id: t.id,
+        name: t.name,
+        minutes: t.minutes,
+        color: t.color,
+        totalMs: t.totalMs,
+        remainingMs: t.remainingMs
+      }));
+      saveJSON(LS_ACTIVE, { nextId, tasks: arr });
+    }
+
+    function getCompleted() {
+      return loadJSON(LS_COMPLETED, []);
+    }
+    function setCompleted(arr) {
+      saveJSON(LS_COMPLETED, arr);
+    }
+
+    function renderCompleted() {
+      const completed = getCompleted();
+      completedCountEl.textContent = String(completed.length);
+      completedEmptyEl.style.display = completed.length === 0 ? "block" : "none";
+      completedListEl.innerHTML = "";
+
+      // Newest first
+      completed.slice().reverse().forEach((c) => {
+        const el = document.createElement("div");
+        el.className = "completedItem";
+        el.style.setProperty("--accent", c.color);
+
+        const when = new Date(c.completedAt);
+        const nice = isNaN(when.getTime()) ? c.completedAt : when.toLocaleString();
+
+        el.innerHTML = `
+          <div class="completedTop">
+            <div>
+              <span class="completedName">${escapeHTML(c.name)}</span>
+              <span class="completedMeta"> • ${c.minutes} min</span>
+            </div>
+            <div class="completedMeta" style="white-space:nowrap;">${nice}</div>
+          </div>
+          <div class="completedTime">Color: <span style="color:${c.color}; font-weight:650;">${c.color}</span></div>
+          <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn" data-restore="${c.id}">Restore</button>
+            <button class="btn danger" data-delete="${c.id}">Delete</button>
+          </div>
+        `;
+
+        completedListEl.appendChild(el);
+      });
+
+      // Wire restore/delete
+      completedListEl.querySelectorAll("[data-restore]").forEach(btn => {
+        btn.addEventListener("click", () => restoreCompleted(btn.getAttribute("data-restore")));
+      });
+      completedListEl.querySelectorAll("[data-delete]").forEach(btn => {
+        btn.addEventListener("click", () => deleteCompleted(btn.getAttribute("data-delete")));
+      });
+    }
+
+    function addCompletedFromTask(task) {
+      const completed = getCompleted();
+      completed.push({
+        id: "c_" + cryptoRandomId(),
+        name: task.name,
+        minutes: task.minutes,
+        color: task.color,
+        completedAt: nowISO()
+      });
+      setCompleted(completed);
+      renderCompleted();
+    }
+
+    function restoreCompleted(completedId) {
+      const completed = getCompleted();
+      const idx = completed.findIndex(x => x.id === completedId);
+      if (idx === -1) return;
+
+      const c = completed[idx];
+      // Restore as a brand new active task (full duration)
+      createTask({ name: c.name, minutes: c.minutes, color: c.color }, { persist: true });
+
+      completed.splice(idx, 1);
+      setCompleted(completed);
+      renderCompleted();
+    }
+
+    function deleteCompleted(completedId) {
+      const completed = getCompleted().filter(x => x.id !== completedId);
+      setCompleted(completed);
+      renderCompleted();
+    }
+
+    function clearCompleted() {
+      setCompleted([]);
+      renderCompleted();
+    }
+
+    function cryptoRandomId() {
+      // Small unique id
+      const a = new Uint32Array(2);
+      (crypto || window.crypto).getRandomValues(a);
+      return a[0].toString(16) + a[1].toString(16);
+    }
+
+    function escapeHTML(s) {
+      return String(s)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function createTask({ name, minutes, color }, { persist = true } = {}) {
       const id = String(nextId++);
       const totalMs = minutes * 60 * 1000;
 
@@ -282,13 +534,13 @@
         remainingMs: totalMs,
         running: false,
         raf: null,
-        startedAt: null,
         endsAt: null
       };
 
       tasks.set(id, task);
       listEl.prepend(buildTaskEl(task));
       renderEmpty();
+      if (persist) persistActive();
     }
 
     function buildTaskEl(task) {
@@ -332,7 +584,7 @@
 
       startBtn.addEventListener("click", () => startTask(task.id));
       pauseBtn.addEventListener("click", () => pauseTask(task.id));
-      delBtn.addEventListener("click", () => removeTask(task.id));
+      delBtn.addEventListener("click", () => removeTask(task.id, { persist: true }));
 
       return item;
     }
@@ -382,13 +634,11 @@
       if (!task || task.running) return;
 
       task.running = true;
-
       const now = performance.now();
-      // If resuming, remainingMs is already reduced.
-      task.startedAt = now;
       task.endsAt = now + task.remainingMs;
 
       updateTaskUI(task);
+      persistActive();
       task.raf = requestAnimationFrame(() => tick(taskId));
     }
 
@@ -400,8 +650,8 @@
       if (task.raf) cancelAnimationFrame(task.raf);
       task.raf = null;
 
-      // remainingMs already updated in tick; just freeze UI
       updateTaskUI(task);
+      persistActive();
     }
 
     function completeTask(taskId) {
@@ -411,22 +661,24 @@
       task.running = false;
       if (task.raf) cancelAnimationFrame(task.raf);
 
+      // Save completion record
+      addCompletedFromTask(task);
+
       const item = listEl.querySelector(`.item[data-id="${task.id}"]`);
       if (item) {
-        // tiny vanish animation
         item.animate(
           [
             { opacity: 1, transform: "scale(1)" },
             { opacity: 0, transform: "scale(0.98)" }
           ],
           { duration: 220, easing: "ease-out" }
-        ).onfinish = () => removeTask(taskId);
+        ).onfinish = () => removeTask(taskId, { persist: true });
       } else {
-        removeTask(taskId);
+        removeTask(taskId, { persist: true });
       }
     }
 
-    function removeTask(taskId) {
+    function removeTask(taskId, { persist = true } = {}) {
       const task = tasks.get(taskId);
       if (!task) return;
 
@@ -437,9 +689,41 @@
       if (item) item.remove();
 
       renderEmpty();
+      if (persist) persistActive();
     }
 
-    // --- Form wiring ---
+    // -------------------------------
+    // UI: menu + hide active list
+    // -------------------------------
+    function applyUIState() {
+      // Drawer hidden (on small screens this feels like a slide-away)
+      drawerEl.classList.toggle("hide", uiState.drawerHidden);
+
+      // Active list hidden
+      listEl.classList.toggle("hide", uiState.hideActiveList);
+      emptyEl.classList.toggle("hide", uiState.hideActiveList);
+
+      toggleTasksBtn.textContent = uiState.hideActiveList ? "Show active list" : "Hide active list";
+      saveJSON(LS_UI, uiState);
+    }
+
+    menuBtn.addEventListener("click", () => {
+      uiState.drawerHidden = !uiState.drawerHidden;
+      applyUIState();
+    });
+
+    toggleTasksBtn.addEventListener("click", () => {
+      uiState.hideActiveList = !uiState.hideActiveList;
+      applyUIState();
+    });
+
+    clearCompletedBtn.addEventListener("click", () => {
+      clearCompleted();
+    });
+
+    // -------------------------------
+    // Form wiring
+    // -------------------------------
     $("#taskForm").addEventListener("submit", (e) => {
       e.preventDefault();
       const name = $("#taskName").value.trim();
@@ -448,13 +732,49 @@
 
       if (!name || !Number.isFinite(minutes) || minutes <= 0) return;
 
-      createTask({ name, minutes, color });
+      createTask({ name, minutes, color }, { persist: true });
 
       e.target.reset();
       $("#taskName").focus();
     });
 
-    renderEmpty();
+    // -------------------------------
+    // Restore from localStorage
+    // -------------------------------
+    function restoreActive() {
+      const saved = loadJSON(LS_ACTIVE, null);
+      if (!saved || !Array.isArray(saved.tasks)) {
+        renderEmpty();
+        return;
+      }
+
+      nextId = Math.max(1, Number(saved.nextId) || 1);
+
+      saved.tasks.forEach((t) => {
+        // Restore active tasks paused (not running)
+        const task = {
+          id: String(t.id),
+          name: t.name,
+          minutes: Number(t.minutes),
+          color: t.color,
+          totalMs: Number(t.totalMs),
+          remainingMs: Number(t.remainingMs),
+          running: false,
+          raf: null,
+          endsAt: null
+        };
+        tasks.set(task.id, task);
+        listEl.appendChild(buildTaskEl(task));
+        updateTaskUI(task);
+      });
+
+      renderEmpty();
+    }
+
+    // Boot
+    restoreActive();
+    renderCompleted();
+    applyUIState();
   </script>
 </body>
 </html>
