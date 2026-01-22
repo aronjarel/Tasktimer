@@ -153,39 +153,21 @@
       background:radial-gradient(800px 220px at 20% 0%, var(--accent) 0%, transparent 60%);
       pointer-events:none;
     }
-    .row{
-      display:grid;
-      grid-template-columns:1fr auto;
-      gap:12px;
+
+    /* ✅ NEW: title row and controls row */
+    .topRow{
+      display:flex;
+      gap:10px;
       padding:14px 14px 10px;
-      align-items:center;
+      align-items:flex-start;
       position:relative;
     }
-
-    /* ✅ UI update: allow full task text */
     .title{
       display:flex;
       gap:10px;
-      align-items:flex-start;     /* was baseline */
-      flex-wrap:nowrap;           /* was wrap */
+      align-items:flex-start;
+      flex: 1 1 auto;        /* takes the full width now */
       min-width:0;
-    }
-    .name{
-      font-weight:650;
-      letter-spacing:0.2px;
-      white-space:normal;         /* was nowrap */
-      overflow:visible;           /* was hidden */
-      text-overflow:clip;         /* was ellipsis */
-      word-break:break-word;
-      line-height:1.25;
-      max-width: 520px;           /* keeps it from smashing buttons; responsive below */
-    }
-    .meta{
-      color:var(--muted);
-      font-size:13px;
-      white-space:nowrap;
-      flex: 0 0 auto;
-      margin-top: 1px;
     }
 
     .drag{
@@ -205,8 +187,35 @@
       width:10px;height:10px;border-radius:999px;background:var(--accent);
       box-shadow:0 0 0 3px rgba(255,255,255,0.04);flex:0 0 auto;transform:translateY(6px);
     }
+    .name{
+      font-weight:650;
+      letter-spacing:0.2px;
+      white-space:normal;
+      overflow:visible;
+      text-overflow:clip;
+      word-break:break-word;
+      line-height:1.25;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .meta{
+      color:var(--muted);
+      font-size:13px;
+      white-space:nowrap;
+      flex: 0 0 auto;
+      margin-top: 1px;
+    }
 
-    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .controlsRow{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      padding: 0 14px 12px;
+      align-items:center;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      margin-top: 2px;
+    }
+
     .barWrap{padding:0 14px 14px}
     .bar{
       height:10px;border-radius:999px;background:rgba(255,255,255,0.08);
@@ -240,7 +249,6 @@
     @media (max-width: 860px){
       .layout{grid-template-columns:1fr}
       .drawer{order:2}
-      .name{max-width: 100%;}
     }
     @media (max-width: 820px){
       .form{grid-template-columns:1fr 1fr}
@@ -249,21 +257,18 @@
   </style>
 </head>
 <body>
-  <!-- NOTE: Only the UI/CSS changed to show full task text.
-       The rest of the HTML/JS is the same as your prior version (auto-start + summary). -->
-
   <div class="app">
     <header>
       <div class="leftHead">
         <button class="menuBtn" id="menuBtn" title="Toggle menu" aria-label="Toggle menu">☰</button>
         <div>
           <h1>Countdown Todo</h1>
-          <p class="sub">Tasks now show full text (wraps instead of truncating).</p>
+          <p class="sub">Controls moved to their own row so task titles can use (almost) full width.</p>
         </div>
       </div>
 
       <form class="form" id="taskForm" autocomplete="off">
-        <input id="taskName" type="text" placeholder="Task name" required maxlength="80" />
+        <input id="taskName" type="text" placeholder="Task name" required maxlength="200" />
         <input id="taskMinutes" type="number" min="1" max="600" step="1" placeholder="Minutes" required />
         <input id="taskStartTime" type="time" placeholder="Start time" />
         <select id="taskColor" aria-label="Color">
@@ -340,9 +345,7 @@
   </div>
 
   <script>
-    // This is your prior JS unchanged (auto-start + summary + reorder + color).
-    // Kept intact so only the UI behavior changes.
-
+    // Storage keys
     const LS_ACTIVE = "todo_active_v4";
     const LS_COMPLETED = "todo_completed_v2";
     const LS_UI = "todo_ui_v1";
@@ -572,11 +575,9 @@
       });
 
       let slices = [];
-      if (count === 0) {
-        slices = [];
-      } else if (anyTime) {
-        slices = Array.from(byColorMs.entries()).filter(([, ms]) => ms > 0).map(([color, ms]) => ({ color, value: ms }));
-      } else {
+      if (count === 0) slices = [];
+      else if (anyTime) slices = Array.from(byColorMs.entries()).filter(([, ms]) => ms > 0).map(([color, ms]) => ({ color, value: ms }));
+      else {
         const byColorCount = new Map();
         completed.forEach((c) => {
           const color = normalizeColor(c.color);
@@ -632,14 +633,12 @@
       slices.forEach((s) => {
         const frac = s.value / total;
         const next = a + frac * Math.PI * 2;
-
         ctx.beginPath();
         ctx.moveTo(cx, cy);
         ctx.arc(cx, cy, r, a, next);
         ctx.closePath();
         ctx.fillStyle = s.color;
         ctx.fill();
-
         a = next;
       });
 
@@ -660,12 +659,9 @@
       const totalMs = minutes * 60 * 1000;
 
       const task = {
-        id,
-        name,
-        minutes,
+        id, name, minutes,
         color: normalizeColor(color),
-        totalMs,
-        remainingMs: totalMs,
+        totalMs, remainingMs: totalMs,
         elapsedMs: 0,
         lastTickAt: null,
         running: false,
@@ -710,7 +706,7 @@
       item.draggable = true;
 
       item.innerHTML = `
-        <div class="row">
+        <div class="topRow">
           <div class="title">
             <div class="drag" title="Drag to reorder" aria-label="Drag to reorder">
               <div class="dragDots" aria-hidden="true"></div>
@@ -719,20 +715,23 @@
             <span class="name"></span>
             <span class="meta"></span>
           </div>
-          <div class="controls">
-            <button class="btn primary start">Start</button>
-            <button class="btn pause" disabled>Pause</button>
-            <button class="btn primary done" title="Mark complete early">Done</button>
-            <input class="taskStartTime" type="time" title="Auto-start time (next occurrence)" aria-label="Auto-start time" />
-            <input class="colorPicker" type="color" title="Change color" aria-label="Change color" />
-            <button class="btn delete">Delete</button>
-          </div>
         </div>
+
+        <div class="controlsRow">
+          <button class="btn primary start">Start</button>
+          <button class="btn pause" disabled>Pause</button>
+          <button class="btn primary done" title="Mark complete early">Done</button>
+          <input class="taskStartTime" type="time" title="Auto-start time (next occurrence)" aria-label="Auto-start time" />
+          <input class="colorPicker" type="color" title="Change color" aria-label="Change color" />
+          <button class="btn delete">Delete</button>
+        </div>
+
         <div class="barWrap">
           <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
             <div class="fill"></div>
           </div>
         </div>
+
         <div class="footer">
           <span class="left"></span>
           <span class="mid"></span>
@@ -770,6 +769,7 @@
       colorPicker.addEventListener("input", (e) => setTaskColor(task.id, e.target.value));
       taskStartTime.addEventListener("change", (e) => setTaskStartAt(task.id, e.target.value));
 
+      // Drag reorder (still works; ignore drags from controls row)
       item.addEventListener("dragstart", (e) => {
         const target = e.target;
         if (target.closest("button") || target.closest("input") || target.closest("select")) {
@@ -876,7 +876,6 @@
       if (!task || !task.running) return;
 
       const now = performance.now();
-
       if (task.lastTickAt != null) {
         const dt = Math.max(0, now - task.lastTickAt);
         task.elapsedMs += dt;
@@ -890,7 +889,6 @@
         completeTask(taskId, { completedEarly: false });
         return;
       }
-
       task.raf = requestAnimationFrame(() => tick(taskId));
     }
 
@@ -972,11 +970,8 @@
         if (task.remainingMs !== task.totalMs) continue;
 
         const t = Date.parse(task.startAtISO);
-        if (!isNaN(t) && now >= t) {
-          startTask(task.id);
-        } else {
-          updateTaskUI(task);
-        }
+        if (!isNaN(t) && now >= t) startTask(task.id);
+        else updateTaskUI(task);
       }
     }
 
@@ -1016,10 +1011,7 @@
 
     function restoreActive() {
       const saved = loadJSON(LS_ACTIVE, null);
-      if (!saved || !Array.isArray(saved.tasks)) {
-        renderEmpty();
-        return;
-      }
+      if (!saved || !Array.isArray(saved.tasks)) { renderEmpty(); return; }
       nextId = Math.max(1, Number(saved.nextId) || 1);
 
       saved.tasks.forEach((t) => {
