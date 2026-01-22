@@ -117,13 +117,8 @@
     canvas{display:block}
     .legend{display:grid;gap:6px;font-size:12px;color:var(--muted)}
     .legendRow{display:flex;gap:8px;align-items:center}
-    .legendDot{
-      width:10px;height:10px;border-radius:999px;background:var(--c);
-      box-shadow:0 0 0 3px rgba(0,0,0,0.15);flex:0 0 auto;
-    }
-    .summaryList{
-      margin:0;padding-left:18px;color:var(--muted);font-size:12px;display:grid;gap:6px;
-    }
+    .legendDot{width:10px;height:10px;border-radius:999px;background:var(--c);box-shadow:0 0 0 3px rgba(0,0,0,0.15);flex:0 0 auto;}
+    .summaryList{margin:0;padding-left:18px;color:var(--muted);font-size:12px;display:grid;gap:6px;}
     .summaryList strong{color:var(--text);font-weight:650}
 
     .completedList{display:grid;gap:8px}
@@ -147,6 +142,7 @@
       overflow:hidden;
       position:relative;
       user-select:none;
+      transition: opacity 180ms ease, transform 180ms ease, filter 180ms ease;
     }
     .item::before{
       content:"";position:absolute;inset:0;opacity:0.10;
@@ -154,26 +150,21 @@
       pointer-events:none;
     }
 
-    /* ✅ NEW: title row and controls row */
-    .topRow{
-      display:flex;
-      gap:10px;
-      padding:14px 14px 10px;
-      align-items:flex-start;
-      position:relative;
+    /* Focus mode: dim everything except the running task */
+    .list.focusActive .item{opacity:0.48;filter:saturate(0.85) blur(0px);transform:scale(0.998)}
+    .list.focusActive .item.isRunning{
+      opacity:1;filter:none;transform:scale(1);
+      box-shadow:0 18px 60px rgba(0,0,0,0.45);
+      border-color: color-mix(in srgb, var(--accent) 40%, rgba(255,255,255,0.12));
     }
-    .title{
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      flex: 1 1 auto;        /* takes the full width now */
-      min-width:0;
-    }
+
+    /* Title row + controls row */
+    .topRow{display:flex;gap:10px;padding:14px 14px 10px;align-items:flex-start;position:relative;}
+    .title{display:flex;gap:10px;align-items:flex-start;flex:1 1 auto;min-width:0;}
 
     .drag{
       width:26px;height:26px;border-radius:10px;border:1px solid var(--border);
-      background:rgba(255,255,255,0.05);display:grid;place-items:center;cursor:grab;flex:0 0 auto;
-      margin-top:2px;
+      background:rgba(255,255,255,0.05);display:grid;place-items:center;cursor:grab;flex:0 0 auto;margin-top:2px;
     }
     .drag:active{cursor:grabbing}
     .dragDots{
@@ -188,53 +179,45 @@
       box-shadow:0 0 0 3px rgba(255,255,255,0.04);flex:0 0 auto;transform:translateY(6px);
     }
     .name{
-      font-weight:650;
-      letter-spacing:0.2px;
-      white-space:normal;
-      overflow:visible;
-      text-overflow:clip;
-      word-break:break-word;
-      line-height:1.25;
-      flex: 1 1 auto;
-      min-width: 0;
+      font-weight:650;letter-spacing:0.2px;white-space:normal;overflow:visible;text-overflow:clip;
+      word-break:break-word;line-height:1.25;flex:1 1 auto;min-width:0;
     }
-    .meta{
-      color:var(--muted);
-      font-size:13px;
+    .meta{color:var(--muted);font-size:13px;white-space:nowrap;flex:0 0 auto;margin-top:1px;}
+
+    .badge{
+      margin-left:auto;
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.06);
+      color:rgba(234,240,255,0.85);
       white-space:nowrap;
-      flex: 0 0 auto;
-      margin-top: 1px;
+      align-self:flex-start;
+    }
+    .badge.run{
+      border-color: color-mix(in srgb, var(--accent) 55%, rgba(255,255,255,0.12));
+      background: color-mix(in srgb, var(--accent) 18%, rgba(255,255,255,0.06));
     }
 
     .controlsRow{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      padding: 0 14px 12px;
-      align-items:center;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      margin-top: 2px;
+      display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 12px;align-items:center;
+      border-top:1px solid rgba(255,255,255,0.06);margin-top:2px;
     }
 
+    /* Hide controls when scheduled (not started yet) */
+    .item.isScheduled .controlsRow{display:none;}
+
     .barWrap{padding:0 14px 14px}
-    .bar{
-      height:10px;border-radius:999px;background:rgba(255,255,255,0.08);
-      border:1px solid var(--border);overflow:hidden;position:relative;
-    }
+    .bar{height:10px;border-radius:999px;background:rgba(255,255,255,0.08);border:1px solid var(--border);overflow:hidden;position:relative;}
     .fill{
       height:100%;width:100%;
       background:linear-gradient(90deg,
         color-mix(in srgb, var(--accent) 70%, white 0%),
         color-mix(in srgb, var(--accent) 45%, white 10%));
-      border-radius:999px;
-      transform-origin:left center;
-      transform:scaleX(1);
-      transition:transform 80ms linear;
+      border-radius:999px;transform-origin:left center;transform:scaleX(1);transition:transform 80ms linear;
     }
-    .footer{
-      display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
-      padding:0 14px 14px;color:var(--muted);font-size:12px;gap:8px;
-    }
+    .footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;padding:0 14px 14px;color:var(--muted);font-size:12px;gap:8px;}
     .sched{color:rgba(234,240,255,0.65)}
 
     .colorPicker{
@@ -263,7 +246,7 @@
         <button class="menuBtn" id="menuBtn" title="Toggle menu" aria-label="Toggle menu">☰</button>
         <div>
           <h1>Countdown Todo</h1>
-          <p class="sub">Controls moved to their own row so task titles can use (almost) full width.</p>
+          <p class="sub">Focus mode: running task pops, others dim. Scheduled tasks hide controls until they start.</p>
         </div>
       </div>
 
@@ -345,7 +328,6 @@
   </div>
 
   <script>
-    // Storage keys
     const LS_ACTIVE = "todo_active_v4";
     const LS_COMPLETED = "todo_completed_v2";
     const LS_UI = "todo_ui_v1";
@@ -654,6 +636,34 @@
       ctx.stroke();
     }
 
+    // -------- Focus mode helpers --------
+    function isTaskScheduled(task) {
+      if (!task.startAtISO) return false;
+      if (task.startedOnce) return false;
+      if (task.running) return false;
+      if (task.elapsedMs !== 0) return false;
+      if (task.remainingMs !== task.totalMs) return false;
+      const t = Date.parse(task.startAtISO);
+      return !isNaN(t) && t > Date.now();
+    }
+
+    function updateFocusMode() {
+      // Only one task should be running, but handle "any running".
+      const anyRunning = Array.from(tasks.values()).some(t => t.running);
+      listEl.classList.toggle("focusActive", anyRunning);
+
+      // Pin running task to top
+      if (anyRunning) {
+        // choose the first running task in current DOM order for stability
+        const runningId = listOrder().find(id => tasks.get(id)?.running);
+        if (runningId) {
+          const el = listEl.querySelector(`.item[data-id="${runningId}"]`);
+          if (el && listEl.firstElementChild !== el) listEl.prepend(el);
+        }
+      }
+    }
+
+    // -------- Active tasks --------
     function createTask({ name, minutes, color, startAtISO }, { persist = true } = {}) {
       const id = String(nextId++);
       const totalMs = minutes * 60 * 1000;
@@ -674,6 +684,7 @@
       tasks.set(id, task);
       listEl.prepend(buildTaskEl(task));
       renderEmpty();
+      updateFocusMode();
       if (persist) persistActive();
     }
 
@@ -714,6 +725,7 @@
             <span class="dot" aria-hidden="true"></span>
             <span class="name"></span>
             <span class="meta"></span>
+            <span class="badge" style="display:none;"></span>
           </div>
         </div>
 
@@ -769,7 +781,7 @@
       colorPicker.addEventListener("input", (e) => setTaskColor(task.id, e.target.value));
       taskStartTime.addEventListener("change", (e) => setTaskStartAt(task.id, e.target.value));
 
-      // Drag reorder (still works; ignore drags from controls row)
+      // Drag reorder (ignore interactions on controls)
       item.addEventListener("dragstart", (e) => {
         const target = e.target;
         if (target.closest("button") || target.closest("input") || target.closest("select")) {
@@ -844,6 +856,28 @@
       const item = listEl.querySelector(`.item[data-id="${task.id}"]`);
       if (!item) return;
 
+      // Running class + badge
+      item.classList.toggle("isRunning", task.running);
+
+      // Scheduled class (for hiding controls)
+      const scheduled = isTaskScheduled(task);
+      item.classList.toggle("isScheduled", scheduled);
+
+      const badge = item.querySelector(".badge");
+      if (task.running) {
+        badge.style.display = "inline-flex";
+        badge.classList.add("run");
+        badge.textContent = "Now running";
+      } else if (scheduled) {
+        badge.style.display = "inline-flex";
+        badge.classList.remove("run");
+        const d = new Date(task.startAtISO);
+        badge.textContent = `Auto ${fmtClock(d)}`;
+      } else {
+        badge.style.display = "none";
+        badge.classList.remove("run");
+      }
+
       const fill = item.querySelector(".fill");
       const bar = item.querySelector(".bar");
       const left = item.querySelector(".left");
@@ -866,9 +900,13 @@
       sched.textContent = st;
       sched.style.display = st ? "inline" : "none";
 
-      startBtn.disabled = task.running;
-      pauseBtn.disabled = !task.running;
-      startBtn.textContent = task.remainingMs < task.totalMs ? "Resume" : "Start";
+      if (startBtn && pauseBtn) {
+        startBtn.disabled = task.running;
+        pauseBtn.disabled = !task.running;
+        startBtn.textContent = task.remainingMs < task.totalMs ? "Resume" : "Start";
+      }
+
+      updateFocusMode();
     }
 
     function tick(taskId) {
@@ -957,9 +995,11 @@
       if (item) item.remove();
 
       renderEmpty();
+      updateFocusMode();
       if (persist) persistActive();
     }
 
+    // Auto-start scheduler
     function checkAutoStarts() {
       const now = Date.now();
       for (const task of tasks.values()) {
@@ -970,11 +1010,16 @@
         if (task.remainingMs !== task.totalMs) continue;
 
         const t = Date.parse(task.startAtISO);
-        if (!isNaN(t) && now >= t) startTask(task.id);
-        else updateTaskUI(task);
+        if (!isNaN(t) && now >= t) {
+          startTask(task.id);
+        } else {
+          // keep scheduled badge/countdown fresh
+          updateTaskUI(task);
+        }
       }
     }
 
+    // UI toggles
     function applyUIState() {
       drawerEl.classList.toggle("hide", uiState.drawerHidden);
       listEl.classList.toggle("hide", uiState.hideActiveList);
@@ -993,6 +1038,7 @@
     });
     clearCompletedBtn.addEventListener("click", () => clearCompleted());
 
+    // Form
     $("#taskForm").addEventListener("submit", (e) => {
       e.preventDefault();
       const name = $("#taskName").value.trim();
@@ -1009,6 +1055,7 @@
       $("#taskName").focus();
     });
 
+    // Restore active tasks
     function restoreActive() {
       const saved = loadJSON(LS_ACTIVE, null);
       if (!saved || !Array.isArray(saved.tasks)) { renderEmpty(); return; }
@@ -1036,8 +1083,10 @@
       });
 
       renderEmpty();
+      updateFocusMode();
     }
 
+    // Boot
     restoreActive();
     renderCompleted();
     applyUIState();
