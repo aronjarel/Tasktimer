@@ -5,392 +5,225 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Countdown Todo</title>
   <style>
-    :root {
-      --bg: #0b0f1a;
-      --text: #eaf0ff;
-      --muted: #a9b4d1;
-      --border: rgba(255,255,255,0.10);
-      --shadow: rgba(0,0,0,0.35);
-      --danger: rgba(248,113,113,0.25);
+    :root{
+      --bg:#0b0f1a; --text:#eaf0ff; --muted:#a9b4d1; --border:rgba(255,255,255,0.10);
+      --shadow:rgba(0,0,0,0.35); --danger:rgba(248,113,113,0.25);
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
       background: radial-gradient(1200px 800px at 20% 10%, #1a2550 0%, transparent 60%),
                   radial-gradient(900px 700px at 80% 20%, #3a1f55 0%, transparent 55%),
                   var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-    }
-
-    .app {
-      width: min(980px, 100%);
-      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: 0 18px 60px var(--shadow);
-      overflow: hidden;
-    }
-
-    header {
-      padding: 18px 18px 14px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    header h1 { margin: 0; font-size: 18px; letter-spacing: 0.4px; }
-    .sub { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
-
-    .leftHead { display:flex; align-items:center; gap:12px; }
-    .menuBtn {
-      height: 38px;
-      width: 44px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      cursor: pointer;
-      font-size: 18px;
-      line-height: 0;
+      color:var(--text);
+      min-height:100vh;
       display:grid;
       place-items:center;
+      padding:24px;
     }
-    .menuBtn:hover { filter: brightness(1.05); }
-
-    .form {
-      display: grid;
-      grid-template-columns: 1fr 150px 140px 110px;
-      gap: 10px;
-      align-items: center;
-      width: min(720px, 100%);
+    .app{
+      width:min(980px,100%);
+      background:linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02));
+      border:1px solid var(--border);
+      border-radius:18px;
+      box-shadow:0 18px 60px var(--shadow);
+      overflow:hidden;
     }
-    .form input, .form select, .form button {
-      height: 40px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(17,26,46,0.85);
-      color: var(--text);
-      padding: 0 12px;
-      outline: none;
-    }
-    .form input::placeholder { color: rgba(234,240,255,0.45); }
-    .form button {
-      cursor: pointer;
-      background: linear-gradient(180deg, rgba(110,231,183,0.22), rgba(110,231,183,0.12));
-      border: 1px solid rgba(110,231,183,0.35);
-    }
-    .form button:hover { filter: brightness(1.05); }
-
-    main { padding: 16px 18px 20px; }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 300px 1fr;
-      gap: 12px;
-      align-items: start;
-    }
-
-    .drawer {
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: rgba(17,26,46,0.45);
-      padding: 12px;
-      overflow: hidden;
-      max-height: 70vh;
-    }
-
-    .drawerScroll {
-      overflow: auto;
-      max-height: calc(70vh - 10px);
-      padding-right: 2px;
-    }
-
-    .drawerHeader {
+    header{
+      padding:18px 18px 14px;
+      border-bottom:1px solid var(--border);
       display:flex;
-      justify-content: space-between;
+      gap:12px;
+      flex-wrap:wrap;
       align-items:center;
+      justify-content:space-between;
+    }
+    header h1{margin:0;font-size:18px;letter-spacing:0.4px}
+    .sub{margin:6px 0 0;color:var(--muted);font-size:13px}
+    .leftHead{display:flex;align-items:center;gap:12px}
+    .menuBtn{
+      height:38px;width:44px;border-radius:12px;border:1px solid var(--border);
+      background:rgba(255,255,255,0.06);color:var(--text);cursor:pointer;font-size:18px;
+      line-height:0;display:grid;place-items:center;
+    }
+    .menuBtn:hover{filter:brightness(1.05)}
+
+    .form{
+      display:grid;
+      grid-template-columns: 1fr 130px 150px 140px 110px;
       gap:10px;
-      margin-bottom: 10px;
+      align-items:center;
+      width:min(820px,100%);
     }
+    .form input,.form select,.form button{
+      height:40px;border-radius:12px;border:1px solid var(--border);
+      background:rgba(17,26,46,0.85);color:var(--text);padding:0 12px;outline:none;
+    }
+    .form input::placeholder{color:rgba(234,240,255,0.45)}
+    .form button{
+      cursor:pointer;
+      background:linear-gradient(180deg,rgba(110,231,183,0.22),rgba(110,231,183,0.12));
+      border:1px solid rgba(110,231,183,0.35);
+    }
+    .form button:hover{filter:brightness(1.05)}
+    main{padding:16px 18px 20px}
 
-    .drawerTitle {
-      font-size: 13px;
-      color: var(--muted);
-      letter-spacing: 0.3px;
-      text-transform: uppercase;
-    }
+    .layout{display:grid;grid-template-columns:300px 1fr;gap:12px;align-items:start}
 
-    .pill {
-      font-size: 12px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      white-space: nowrap;
+    .drawer{
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:rgba(17,26,46,0.45);
+      padding:12px;
+      overflow:hidden;
+      max-height:70vh;
     }
+    .drawerScroll{overflow:auto;max-height:calc(70vh - 10px);padding-right:2px}
+    .drawerHeader{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+    .drawerTitle{font-size:13px;color:var(--muted);letter-spacing:0.3px;text-transform:uppercase}
+    .pill{
+      font-size:12px;padding:4px 8px;border-radius:999px;border:1px solid var(--border);
+      background:rgba(255,255,255,0.06);color:var(--text);white-space:nowrap;
+    }
+    .drawerActions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px}
 
-    .drawerActions {
-      display:flex;
-      gap:8px;
-      flex-wrap: wrap;
-      margin: 8px 0 12px;
+    .btn{
+      height:34px;border-radius:12px;border:1px solid var(--border);
+      background:rgba(255,255,255,0.06);color:var(--text);
+      padding:0 12px;cursor:pointer;font-size:13px;white-space:nowrap;
     }
-
-    .btn {
-      height: 34px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      padding: 0 12px;
-      cursor: pointer;
-      font-size: 13px;
-      white-space: nowrap;
-    }
-    .btn:hover { filter: brightness(1.05); }
-    .btn:disabled { cursor:not-allowed; opacity:0.55; }
-    .btn.danger { border-color: rgba(248,113,113,0.35); background: var(--danger); }
-    .btn.primary {
+    .btn:hover{filter:brightness(1.05)}
+    .btn:disabled{cursor:not-allowed;opacity:0.55}
+    .btn.danger{border-color:rgba(248,113,113,0.35);background:var(--danger)}
+    .btn.primary{
       border-color: color-mix(in srgb, var(--accent) 55%, transparent);
       background: color-mix(in srgb, var(--accent) 20%, rgba(255,255,255,0.06));
     }
 
-    .sectionCard {
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: rgba(255,255,255,0.04);
-      padding: 10px;
-      margin-top: 10px;
+    .sectionCard{
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:rgba(255,255,255,0.04);
+      padding:10px;
+      margin-top:10px;
     }
-    .sectionTop {
-      display:flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 8px;
+    .sectionTop{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+    .sectionTop h3{margin:0;font-size:13px;color:var(--muted);letter-spacing:0.3px;text-transform:uppercase}
+    .summaryGrid{display:grid;grid-template-columns:1fr;gap:10px}
+    .statLine{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--text)}
+    .statLabel{color:var(--muted)}
+    .pieWrap{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:center}
+    canvas{display:block}
+    .legend{display:grid;gap:6px;font-size:12px;color:var(--muted)}
+    .legendRow{display:flex;gap:8px;align-items:center}
+    .legendDot{
+      width:10px;height:10px;border-radius:999px;background:var(--c);
+      box-shadow:0 0 0 3px rgba(0,0,0,0.15);flex:0 0 auto;
     }
-    .sectionTop h3 {
-      margin: 0;
-      font-size: 13px;
-      color: var(--muted);
-      letter-spacing: 0.3px;
-      text-transform: uppercase;
+    .summaryList{
+      margin:0;padding-left:18px;color:var(--muted);font-size:12px;display:grid;gap:6px;
     }
+    .summaryList strong{color:var(--text);font-weight:650}
 
-    .summaryGrid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
+    .completedList{display:grid;gap:8px}
+    .completedItem{border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,0.04);padding:10px}
+    .completedTop{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+    .completedName{font-weight:650}
+    .completedMeta{color:var(--muted);font-size:12px}
+    .completedTime{color:var(--muted);font-size:12px;margin-top:6px}
+
+    .content{min-height:200px}
+    .empty{
+      color:var(--muted);font-size:14px;padding:14px;border:1px dashed var(--border);
+      border-radius:14px;background:rgba(17,26,46,0.35);
     }
+    .list{display:grid;gap:12px}
 
-    .statLine {
-      display:flex;
-      justify-content: space-between;
-      gap: 10px;
-      font-size: 13px;
-      color: var(--text);
+    .item{
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:rgba(17,26,46,0.55);
+      overflow:hidden;
+      position:relative;
+      user-select:none;
     }
-    .statLabel { color: var(--muted); }
-
-    .pieWrap {
-      display: grid;
-      grid-template-columns: 110px 1fr;
-      gap: 10px;
-      align-items: center;
-    }
-    canvas { display:block; }
-
-    .legend {
-      display: grid;
-      gap: 6px;
-      font-size: 12px;
-      color: var(--muted);
-    }
-    .legendRow { display:flex; gap: 8px; align-items: center; }
-    .legendDot {
-      width: 10px; height: 10px; border-radius: 999px;
-      background: var(--c);
-      box-shadow: 0 0 0 3px rgba(0,0,0,0.15);
-      flex: 0 0 auto;
-    }
-
-    .summaryList {
-      margin: 0;
-      padding-left: 18px;
-      color: var(--muted);
-      font-size: 12px;
-      display: grid;
-      gap: 6px;
-    }
-    .summaryList strong { color: var(--text); font-weight: 650; }
-
-    .completedList { display: grid; gap: 8px; }
-
-    .completedItem {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: rgba(255,255,255,0.04);
-      padding: 10px;
-    }
-    .completedTop {
-      display:flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: baseline;
-      flex-wrap: wrap;
-    }
-    .completedName { font-weight: 650; }
-    .completedMeta { color: var(--muted); font-size: 12px; }
-    .completedTime { color: var(--muted); font-size: 12px; margin-top: 6px; }
-
-    .content { min-height: 200px; }
-
-    .empty {
-      color: var(--muted);
-      font-size: 14px;
-      padding: 14px;
-      border: 1px dashed var(--border);
-      border-radius: 14px;
-      background: rgba(17,26,46,0.35);
-    }
-
-    .list { display: grid; gap: 12px; }
-
-    .item {
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: rgba(17,26,46,0.55);
-      overflow: hidden;
-      position: relative;
-      user-select: none;
-    }
-
     .item::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      opacity:0.10;
-      background: radial-gradient(800px 220px at 20% 0%, var(--accent) 0%, transparent 60%);
+      content:"";position:absolute;inset:0;opacity:0.10;
+      background:radial-gradient(800px 220px at 20% 0%, var(--accent) 0%, transparent 60%);
       pointer-events:none;
     }
-
-    .row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      padding: 14px 14px 10px;
-      align-items: center;
-      position: relative;
+    .row{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:12px;
+      padding:14px 14px 10px;
+      align-items:center;
+      position:relative;
     }
-
-    .title {
-      display: flex;
-      gap: 10px;
-      align-items: baseline;
-      flex-wrap: wrap;
-      min-width: 0;
+    .title{
+      display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;min-width:0;
     }
-
-    .drag {
-      width: 26px;
-      height: 26px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.05);
-      display: grid;
-      place-items: center;
-      cursor: grab;
-      flex: 0 0 auto;
+    .drag{
+      width:26px;height:26px;border-radius:10px;border:1px solid var(--border);
+      background:rgba(255,255,255,0.05);display:grid;place-items:center;cursor:grab;flex:0 0 auto;
     }
-    .drag:active { cursor: grabbing; }
-    .dragDots {
-      width: 12px; height: 12px;
+    .drag:active{cursor:grabbing}
+    .dragDots{
+      width:12px;height:12px;
       background:
         radial-gradient(circle, rgba(234,240,255,0.8) 2px, transparent 3px) 0 0/6px 6px,
         radial-gradient(circle, rgba(234,240,255,0.8) 2px, transparent 3px) 3px 3px/6px 6px;
-      opacity: 0.55;
-      border-radius: 4px;
+      opacity:0.55;border-radius:4px;
     }
-
-    .dot {
-      width: 10px; height: 10px;
-      border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 0 3px rgba(255,255,255,0.04);
-      flex: 0 0 auto;
-      transform: translateY(1px);
+    .dot{
+      width:10px;height:10px;border-radius:999px;background:var(--accent);
+      box-shadow:0 0 0 3px rgba(255,255,255,0.04);flex:0 0 auto;transform:translateY(1px);
     }
-
-    .name { font-weight: 650; letter-spacing: 0.2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .meta { color: var(--muted); font-size: 13px; }
-
-    .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-
-    .barWrap { padding: 0 14px 14px; }
-    .bar {
-      height: 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid var(--border);
-      overflow: hidden;
-      position: relative;
+    .name{
+      font-weight:650;letter-spacing:0.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     }
-    .fill {
-      height: 100%;
-      width: 100%;
-      background: linear-gradient(90deg,
+    .meta{color:var(--muted);font-size:13px}
+    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+    .barWrap{padding:0 14px 14px}
+    .bar{
+      height:10px;border-radius:999px;background:rgba(255,255,255,0.08);
+      border:1px solid var(--border);overflow:hidden;position:relative;
+    }
+    .fill{
+      height:100%;width:100%;
+      background:linear-gradient(90deg,
         color-mix(in srgb, var(--accent) 70%, white 0%),
         color-mix(in srgb, var(--accent) 45%, white 10%));
-      border-radius: 999px;
-      transform-origin: left center;
-      transform: scaleX(1);
-      transition: transform 80ms linear;
+      border-radius:999px;
+      transform-origin:left center;
+      transform:scaleX(1);
+      transition:transform 80ms linear;
     }
 
-    .footer {
-      display:flex;
-      justify-content: space-between;
-      align-items:center;
-      padding: 0 14px 14px;
-      color: var(--muted);
-      font-size: 12px;
-      flex-wrap: wrap;
-      gap: 8px;
+    .footer{
+      display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
+      padding:0 14px 14px;color:var(--muted);font-size:12px;gap:8px;
+    }
+    .sched{color:rgba(234,240,255,0.65)}
+
+    .colorPicker{
+      width:36px;height:34px;padding:0;border-radius:12px;border:1px solid var(--border);
+      background:rgba(255,255,255,0.06);cursor:pointer;
     }
 
-    .colorPicker {
-      width: 36px;
-      height: 34px;
-      padding: 0;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.06);
-      cursor: pointer;
+    .hide{display:none !important}
+    .dragging{opacity:0.65;transform:scale(0.995)}
+    .dropHint{outline:2px dashed rgba(234,240,255,0.22);outline-offset:-6px}
+
+    @media (max-width: 860px){
+      .layout{grid-template-columns:1fr}
+      .drawer{order:2}
     }
-
-    .hide { display: none !important; }
-
-    .dragging { opacity: 0.65; transform: scale(0.995); }
-    .dropHint { outline: 2px dashed rgba(234,240,255,0.22); outline-offset: -6px; }
-
-    @media (max-width: 860px) {
-      .layout { grid-template-columns: 1fr; }
-      .drawer { order: 2; }
-    }
-
-    @media (max-width: 720px) {
-      .form { grid-template-columns: 1fr 1fr; }
-      .form button { grid-column: 1 / -1; }
+    @media (max-width: 820px){
+      .form{grid-template-columns:1fr 1fr}
+      .form button{grid-column:1 / -1}
     }
   </style>
 </head>
@@ -401,13 +234,14 @@
         <button class="menuBtn" id="menuBtn" title="Toggle menu" aria-label="Toggle menu">☰</button>
         <div>
           <h1>Countdown Todo</h1>
-          <p class="sub">Summary report: totals + completed list + time spent + pie chart by color.</p>
+          <p class="sub">Add an optional start time (auto-starts at the next occurrence of that time).</p>
         </div>
       </div>
 
       <form class="form" id="taskForm" autocomplete="off">
         <input id="taskName" type="text" placeholder="Task name" required maxlength="80" />
         <input id="taskMinutes" type="number" min="1" max="600" step="1" placeholder="Minutes" required />
+        <input id="taskStartTime" type="time" placeholder="Start time" />
         <select id="taskColor" aria-label="Color">
           <option value="#60a5fa">Blue</option>
           <option value="#34d399">Green</option>
@@ -434,7 +268,6 @@
               <button class="btn danger" id="clearCompletedBtn">Clear completed</button>
             </div>
 
-            <!-- SUMMARY REPORT -->
             <div class="sectionCard" id="summaryCard">
               <div class="sectionTop">
                 <h3>Summary report</h3>
@@ -464,7 +297,6 @@
               </div>
             </div>
 
-            <!-- COMPLETED LIST (detailed) -->
             <div class="drawerHeader" style="margin-top:12px;">
               <div class="drawerTitle">Completed</div>
               <div class="pill"><span id="completedCount">0</span></div>
@@ -484,10 +316,8 @@
   </div>
 
   <script>
-    // -------------------------------
-    // Persistence keys
-    // -------------------------------
-    const LS_ACTIVE = "todo_active_v3";
+    // Storage keys (bumped active version because we added scheduling fields)
+    const LS_ACTIVE = "todo_active_v4";
     const LS_COMPLETED = "todo_completed_v2";
     const LS_UI = "todo_ui_v1";
 
@@ -522,10 +352,8 @@
 
     function saveJSON(key, obj) { localStorage.setItem(key, JSON.stringify(obj)); }
     function loadJSON(key, fallback) {
-      try {
-        const raw = localStorage.getItem(key);
-        return raw ? JSON.parse(raw) : fallback;
-      } catch { return fallback; }
+      try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+      catch { return fallback; }
     }
 
     function fmtTime(ms) {
@@ -534,9 +362,7 @@
       const r = s % 60;
       return `${m}:${String(r).padStart(2, "0")}`;
     }
-
     function fmtMinutes(ms) { return `${(ms / 60000).toFixed(2)} min`; }
-
     function fmtHMS(ms) {
       const total = Math.max(0, Math.round(ms / 1000));
       const h = Math.floor(total / 3600);
@@ -546,7 +372,9 @@
       if (m > 0) return `${m}m ${s}s`;
       return `${s}s`;
     }
-
+    function fmtClock(d) {
+      return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    }
     function nowISO() { return new Date().toISOString(); }
 
     function cryptoRandomId() {
@@ -554,19 +382,25 @@
       (crypto || window.crypto).getRandomValues(a);
       return a[0].toString(16) + a[1].toString(16);
     }
-
     function escapeHTML(s) {
       return String(s)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+        .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;").replaceAll("'", "&#039;");
     }
-
     function normalizeColor(c) {
       if (typeof c === "string" && /^#([0-9a-f]{6})$/i.test(c)) return c;
       return "#60a5fa";
+    }
+
+    // Given "HH:MM", schedule for the next occurrence of that time (today if future; otherwise tomorrow)
+    function nextOccurrenceISO(timeStr) {
+      if (!timeStr || !/^\d{2}:\d{2}$/.test(timeStr)) return null;
+      const [hh, mm] = timeStr.split(":").map(Number);
+      const now = new Date();
+      const d = new Date(now);
+      d.setHours(hh, mm, 0, 0);
+      if (d.getTime() <= now.getTime()) d.setDate(d.getDate() + 1);
+      return d.toISOString();
     }
 
     function listOrder() {
@@ -591,10 +425,11 @@
           color: t.color,
           totalMs: t.totalMs,
           remainingMs: t.remainingMs,
-          elapsedMs: t.elapsedMs || 0
+          elapsedMs: t.elapsedMs || 0,
+          startAtISO: t.startAtISO || null,
+          startedOnce: !!t.startedOnce
         };
       }).filter(Boolean);
-
       saveJSON(LS_ACTIVE, { nextId, tasks: arr });
     }
 
@@ -637,7 +472,6 @@
             <button class="btn danger" data-delete="${c.id}">Delete</button>
           </div>
         `;
-
         completedListEl.appendChild(el);
       });
 
@@ -648,7 +482,7 @@
         btn.addEventListener("click", () => deleteCompleted(btn.getAttribute("data-delete")));
       });
 
-      renderSummary(); // keep report in sync
+      renderSummary();
     }
 
     function addCompletedFromTask(task, { completedEarly }) {
@@ -664,7 +498,7 @@
         timeUsedMs: Math.max(0, task.elapsedMs || 0)
       });
       setCompleted(completed);
-      renderCompleted(); // also updates summary
+      renderCompleted();
     }
 
     function restoreCompleted(completedId) {
@@ -673,7 +507,7 @@
       if (idx === -1) return;
 
       const c = completed[idx];
-      createTask({ name: c.name, minutes: c.minutes, color: c.color }, { persist: true });
+      createTask({ name: c.name, minutes: c.minutes, color: c.color, startAtISO: null }, { persist: true });
 
       completed.splice(idx, 1);
       setCompleted(completed);
@@ -695,7 +529,6 @@
     // -------------------------------
     function renderSummary() {
       const completed = getCompleted();
-
       const count = completed.length;
       const totalUsedMs = completed.reduce((sum, c) => sum + (Number(c.timeUsedMs) || 0), 0);
       const avgMs = count > 0 ? totalUsedMs / count : 0;
@@ -704,17 +537,15 @@
       summaryTimeEl.textContent = `${fmtMinutes(totalUsedMs)} (${fmtHMS(totalUsedMs)})`;
       summaryAvgEl.textContent = fmtMinutes(avgMs);
 
-      // Completed list (newest first)
       summaryListEl.innerHTML = "";
-      const newestFirst = completed.slice().reverse();
-      newestFirst.forEach((c) => {
+      completed.slice().reverse().forEach((c) => {
         const li = document.createElement("li");
         const used = typeof c.timeUsedMs === "number" ? fmtMinutes(c.timeUsedMs) : "—";
         li.innerHTML = `<strong>${escapeHTML(c.name)}</strong> — ${used}`;
         summaryListEl.appendChild(li);
       });
 
-      // Pie chart by color (based on time used; fallback to count if time is 0 everywhere)
+      // Pie by color (time used; fallback to count if all zero)
       const byColorMs = new Map();
       let anyTime = false;
 
@@ -725,7 +556,6 @@
         byColorMs.set(color, (byColorMs.get(color) || 0) + ms);
       });
 
-      // If no time recorded (e.g., all completed without starting), use counts
       let slices = [];
       if (count === 0) {
         slices = [];
@@ -744,23 +574,19 @@
 
       drawPie(pieCanvas, slices);
 
-      // Legend
       pieLegendEl.innerHTML = "";
       const total = slices.reduce((s, x) => s + x.value, 0);
-      slices
-        .slice()
-        .sort((a, b) => b.value - a.value)
-        .forEach((s) => {
-          const row = document.createElement("div");
-          row.className = "legendRow";
-          const pct = total > 0 ? Math.round((s.value / total) * 100) : 0;
-          row.innerHTML = `
-            <span class="legendDot" style="--c:${s.color}; background:${s.color};"></span>
-            <span>${s.color}</span>
-            <span style="margin-left:auto;">${pct}%</span>
-          `;
-          pieLegendEl.appendChild(row);
-        });
+      slices.slice().sort((a, b) => b.value - a.value).forEach((s) => {
+        const row = document.createElement("div");
+        row.className = "legendRow";
+        const pct = total > 0 ? Math.round((s.value / total) * 100) : 0;
+        row.innerHTML = `
+          <span class="legendDot" style="--c:${s.color}; background:${s.color};"></span>
+          <span>${s.color}</span>
+          <span style="margin-left:auto;">${pct}%</span>
+        `;
+        pieLegendEl.appendChild(row);
+      });
 
       if (slices.length === 0) {
         pieLegendEl.innerHTML = `<div class="legendRow"><span style="color:var(--muted);">No data yet.</span></div>`;
@@ -775,7 +601,6 @@
 
       ctx.clearRect(0, 0, w, h);
 
-      // background ring
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.fillStyle = "rgba(255,255,255,0.06)";
@@ -783,7 +608,6 @@
 
       const total = slices.reduce((s, x) => s + x.value, 0);
       if (!total) {
-        // hollow center
         ctx.beginPath();
         ctx.arc(cx, cy, r * 0.62, 0, Math.PI * 2);
         ctx.fillStyle = "rgba(0,0,0,0.25)";
@@ -791,7 +615,7 @@
         return;
       }
 
-      let a = -Math.PI / 2; // start at top
+      let a = -Math.PI / 2;
       slices.forEach((s) => {
         const frac = s.value / total;
         const next = a + frac * Math.PI * 2;
@@ -806,13 +630,11 @@
         a = next;
       });
 
-      // center donut
       ctx.beginPath();
       ctx.arc(cx, cy, r * 0.62, 0, Math.PI * 2);
       ctx.fillStyle = "rgba(0,0,0,0.25)";
       ctx.fill();
 
-      // subtle outline
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.strokeStyle = "rgba(255,255,255,0.10)";
@@ -821,9 +643,9 @@
     }
 
     // -------------------------------
-    // Active tasks
+    // Active tasks (with optional auto-start time)
     // -------------------------------
-    function createTask({ name, minutes, color }, { persist = true } = {}) {
+    function createTask({ name, minutes, color, startAtISO }, { persist = true } = {}) {
       const id = String(nextId++);
       const totalMs = minutes * 60 * 1000;
 
@@ -834,11 +656,16 @@
         color: normalizeColor(color),
         totalMs,
         remainingMs: totalMs,
+
         elapsedMs: 0,
         lastTickAt: null,
         running: false,
         raf: null,
-        endsAt: null
+        endsAt: null,
+
+        // scheduling
+        startAtISO: startAtISO || null,   // ISO string for the next scheduled auto-start
+        startedOnce: false               // once started (auto or manual), we won't auto-start again
       };
 
       tasks.set(id, task);
@@ -847,19 +674,27 @@
       if (persist) persistActive();
     }
 
-    function clearDropHints() {
-      listEl.querySelectorAll(".dropHint").forEach(el => el.classList.remove("dropHint"));
-    }
-
     function setTaskColor(taskId, newColor) {
       const task = tasks.get(taskId);
       if (!task) return;
       task.color = normalizeColor(newColor);
-
       const item = listEl.querySelector(`.item[data-id="${taskId}"]`);
       if (item) item.style.setProperty("--accent", task.color);
-
       persistActive();
+    }
+
+    function setTaskStartAt(taskId, timeStr) {
+      const task = tasks.get(taskId);
+      if (!task) return;
+      task.startAtISO = nextOccurrenceISO(timeStr); // null if blank/invalid
+      // If they set a schedule, re-arm only if it hasn't started yet
+      // (we keep startedOnce if they've already started; schedule becomes informational)
+      updateTaskUI(task);
+      persistActive();
+    }
+
+    function clearDropHints() {
+      listEl.querySelectorAll(".dropHint").forEach(el => el.classList.remove("dropHint"));
     }
 
     function buildTaskEl(task) {
@@ -883,6 +718,10 @@
             <button class="btn primary start">Start</button>
             <button class="btn pause" disabled>Pause</button>
             <button class="btn primary done" title="Mark complete early">Done</button>
+
+            <!-- Optional auto-start time editor (per-task) -->
+            <input class="taskStartTime" type="time" title="Auto-start time (next occurrence)" aria-label="Auto-start time" />
+
             <input class="colorPicker" type="color" title="Change color" aria-label="Change color" />
             <button class="btn delete">Delete</button>
           </div>
@@ -896,6 +735,7 @@
           <span class="left"></span>
           <span class="mid"></span>
           <span class="right"></span>
+          <span class="sched"></span>
         </div>
       `;
 
@@ -910,14 +750,27 @@
       const doneBtn = item.querySelector(".done");
       const delBtn = item.querySelector(".delete");
       const colorPicker = item.querySelector(".colorPicker");
+      const taskStartTime = item.querySelector(".taskStartTime");
 
-      colorPicker.value = normalizeColor(task.color);
+      colorPicker.value = task.color;
 
-      startBtn.addEventListener("click", () => startTask(task.id));
+      // Seed the per-task time input if scheduled
+      if (task.startAtISO) {
+        const d = new Date(task.startAtISO);
+        if (!isNaN(d.getTime())) {
+          const hh = String(d.getHours()).padStart(2, "0");
+          const mm = String(d.getMinutes()).padStart(2, "0");
+          taskStartTime.value = `${hh}:${mm}`;
+        }
+      }
+
+      startBtn.addEventListener("click", () => startTask(task.id, { auto: false }));
       pauseBtn.addEventListener("click", () => pauseTask(task.id));
       doneBtn.addEventListener("click", () => completeTask(task.id, { completedEarly: true }));
       delBtn.addEventListener("click", () => removeTask(task.id, { persist: true }));
+
       colorPicker.addEventListener("input", (e) => setTaskColor(task.id, e.target.value));
+      taskStartTime.addEventListener("change", (e) => setTaskStartAt(task.id, e.target.value));
 
       // Drag reorder
       item.addEventListener("dragstart", (e) => {
@@ -968,7 +821,29 @@
         persistActive();
       });
 
+      updateTaskUI(task);
       return item;
+    }
+
+    function schedText(task) {
+      if (!task.startAtISO) return "";
+      const d = new Date(task.startAtISO);
+      if (isNaN(d.getTime())) return "";
+      const now = Date.now();
+      const delta = d.getTime() - now;
+
+      // If it hasn't started yet and is scheduled in the future, show countdown
+      if (!task.startedOnce && !task.running && task.elapsedMs === 0 && task.remainingMs === task.totalMs) {
+        if (delta > 0) {
+          const mins = Math.floor(delta / 60000);
+          const secs = Math.floor((delta % 60000) / 1000);
+          return `Auto-start: ${fmtClock(d)} (in ${mins}m ${secs}s)`;
+        }
+        // already due
+        return `Auto-start: ${fmtClock(d)} (starting…)`;
+      }
+
+      return `Scheduled: ${fmtClock(d)}`;
     }
 
     function updateTaskUI(task) {
@@ -980,6 +855,7 @@
       const left = item.querySelector(".left");
       const mid = item.querySelector(".mid");
       const right = item.querySelector(".right");
+      const sched = item.querySelector(".sched");
       const startBtn = item.querySelector(".start");
       const pauseBtn = item.querySelector(".pause");
 
@@ -991,6 +867,10 @@
       left.textContent = `Remaining: ${fmtTime(task.remainingMs)}`;
       mid.textContent = `Used: ${fmtMinutes(task.elapsedMs)}`;
       right.textContent = `${ariaNow}%`;
+
+      const st = schedText(task);
+      sched.textContent = st;
+      sched.style.display = st ? "inline" : "none";
 
       startBtn.disabled = task.running;
       pauseBtn.disabled = !task.running;
@@ -1020,11 +900,13 @@
       task.raf = requestAnimationFrame(() => tick(taskId));
     }
 
-    function startTask(taskId) {
+    function startTask(taskId, { auto } = { auto: false }) {
       const task = tasks.get(taskId);
       if (!task || task.running) return;
 
       task.running = true;
+      task.startedOnce = true;
+
       const now = performance.now();
       task.lastTickAt = now;
       task.endsAt = now + task.remainingMs;
@@ -1041,7 +923,6 @@
       task.running = false;
       if (task.raf) cancelAnimationFrame(task.raf);
       task.raf = null;
-
       task.lastTickAt = null;
 
       updateTaskUI(task);
@@ -1088,6 +969,27 @@
       if (persist) persistActive();
     }
 
+    // Auto-start scheduler: checks tasks with startAtISO and starts them when due
+    function checkAutoStarts() {
+      const now = Date.now();
+      for (const task of tasks.values()) {
+        if (!task.startAtISO) continue;
+        if (task.running) continue;
+        if (task.startedOnce) continue;
+        // only auto-start if it hasn't begun at all
+        if (task.elapsedMs !== 0) continue;
+        if (task.remainingMs !== task.totalMs) continue;
+
+        const t = Date.parse(task.startAtISO);
+        if (!isNaN(t) && now >= t) {
+          startTask(task.id, { auto: true });
+        } else {
+          // keep countdown text fresh
+          updateTaskUI(task);
+        }
+      }
+    }
+
     // -------------------------------
     // UI toggles
     // -------------------------------
@@ -1095,7 +997,6 @@
       drawerEl.classList.toggle("hide", uiState.drawerHidden);
       listEl.classList.toggle("hide", uiState.hideActiveList);
       emptyEl.classList.toggle("hide", uiState.hideActiveList);
-
       toggleTasksBtn.textContent = uiState.hideActiveList ? "Show active list" : "Hide active list";
       saveJSON(LS_UI, uiState);
     }
@@ -1104,26 +1005,27 @@
       uiState.drawerHidden = !uiState.drawerHidden;
       applyUIState();
     });
-
     toggleTasksBtn.addEventListener("click", () => {
       uiState.hideActiveList = !uiState.hideActiveList;
       applyUIState();
     });
-
     clearCompletedBtn.addEventListener("click", () => clearCompleted());
 
     // -------------------------------
-    // Form wiring
+    // Form
     // -------------------------------
     $("#taskForm").addEventListener("submit", (e) => {
       e.preventDefault();
       const name = $("#taskName").value.trim();
       const minutes = Number($("#taskMinutes").value);
       const color = $("#taskColor").value;
+      const startTime = $("#taskStartTime").value; // "HH:MM" or ""
 
       if (!name || !Number.isFinite(minutes) || minutes <= 0) return;
 
-      createTask({ name, minutes, color }, { persist: true });
+      const startAtISO = nextOccurrenceISO(startTime); // null if blank
+
+      createTask({ name, minutes, color, startAtISO }, { persist: true });
 
       e.target.reset();
       $("#taskName").focus();
@@ -1153,7 +1055,9 @@
           lastTickAt: null,
           running: false,
           raf: null,
-          endsAt: null
+          endsAt: null,
+          startAtISO: t.startAtISO || null,
+          startedOnce: !!t.startedOnce
         };
         tasks.set(task.id, task);
         listEl.appendChild(buildTaskEl(task));
@@ -1165,8 +1069,11 @@
 
     // Boot
     restoreActive();
-    renderCompleted(); // also renders summary
+    renderCompleted();
     applyUIState();
+
+    // Start the auto-start scheduler
+    setInterval(checkAutoStarts, 500);
   </script>
 </body>
 </html>
